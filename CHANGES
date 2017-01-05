@@ -1,0 +1,750 @@
+GNUpod 0.99.8 - codename 'Bluntschli verbaselt'
+
+Summary
+-------
+
+This release is mostly a bugfix release. There are only a few
+new features. Most notably the Replay Gain has been reworked.
+Main contributors to 0.99.8 were Richard van den Berg,
+Scott Talbert and Heinrich Langos.
+- Infrastructure
+  CHANGE: Finally we switched from CVS to git.
+  FIX: Updated autoconf checks for Date::Manip Date::Format MP3::Info.
+  FIX: Removed dependency of long gone lastfm module.
+- Documentation
+  CHANGE: Updated TODO file.
+  CHANGE: Expanded podcast section.
+  NEW: Added README.developer with some development notes.
+  NEW: Updated documentation to reflect unsupported new hashing methods.
+- "gnupod_addsong"
+  NEW: ALAC support via ffmpeg to FLAC converter.
+  NEW: Added replay gain for ogg files.
+  NEW: Volume adjustment/replay gain handling for MP3 reworked.
+    Here's gnupods way to handle it for mp3 files:
+      IF RVA2/XRVA are present use those,
+      ELSE check for replay_gain tags in APE or TXXX tags.
+      ELSE parse iTunNORM comments AND RVA/RVAD tags.
+  NEW: Replay gain information written in iTunesSD (1gen/2gen shuffle)
+  FIX: Changed iTunNORM parsing take the maximum value of left/right channel.
+  NEW: Setting lyrics_flag if ULT/USLT tag found
+  NEW: Added description of mp3 files with the content of lyrics and comment tags.
+  FIX: Newline characters in mp3 tags and other attributes are not stripped anymore.
+  FIX: Removing zero termination from tag strings.
+  NEW: Added album information to podcast items from channel title.
+  NEW: playlist name guessing for podcasts.
+  FIX: Skip podcasts without any items and warn user (instead of crashing).
+  FIX: Fixed behavior for unparsable podcast xml files.
+- "mktunes"
+  FIX: Changed "udevinfo" to "udevadm info" in linux fwguid detection.
+  FIX: fwguid scan code now only looks for sd* block devices.
+  CHANGE: XMLhelper now drops empty playlists on writing.
+- Artwork
+  CHANGE: Do not stretch artwork (use white bars to fill the square)
+  NEW: Added artwork support for 4g nano.
+- Autotests
+  NEW: Removed path randomization for autotests.
+  NEW: Set addtime to a fixed value when doing autotests.
+  NEW: Added check for "autotest" file at the ipod mountpoint.
+  NEW: The connection hash was expanded by a "autotest" key.
+  NEW: Added "--fwguid" option to gnupod_INIT.pl to be passed on to mktunes.pl.
+
+
+*** OLD STUFF ***
+
+GNUpod 0.99.7
+
+Summary
+-------
+
+I was planning to release GNUpod 1.0, but Heinrich Langos
+flooded me with patches, many thanks to him:
+- Fix DBID width in gnupod_search.pl output
+- Added --bitrate switch to gnupod_search.pl
+- Added --podcast-files-limit switch to gnupod_addsong.pl
+- Added Podcast-Date patch (GNUpod now depends on Date::Parse)
+- Added --unique switch to extractArtwork.pl
+- Added xescaped() patch. GNUpod will now store
+  non-ascii data escaped in it's GNUtunesDB.xml, however: you can still
+  write UTF8 into the file using a decent editor (Such as Yudit).
+  xescaped is now also a lot faster, giving GNUpod a nice speedup.
+Stuff already in GNUpod 0.99.7 but missed in the 0.99.7 CHANGES file:
+- XMLhelper.pm: Changed xescaped to use hex instead of decimal for 
+  escaped unicode characters.
+  Remove all inverted BOMs (Byte Order Markers) (not just the first) 
+  that slipped through to xescaped.
+  Fixing xescaped to always do byte matching and added some debug 
+  output of dropped illegal characters.
+- FileMagic.pm: Remove trailing zeros from MP3 tags that come in utf16 or utf8.
+- gnupod_otgsync.pl: Marking files as played even when only the 
+  skipcount or bookmark is > 0.
+- gnupod_addsong.pl: Added other sources for artist tag data from podcasts.
+  Added "--podcast-artwork" option to download and add artwork to podcasts.
+  Added "--podcast-cache-dir" option allow caching of podcast media files.
+  Fixed podcast XML parser handlers to merge CDATA that comes in chunks.
+- extractArwork.pl: Added MD5 hash to "--unique" check.
+
+
+GNUpod 0.99.6
+
+Summary
+-------
+
+- Fixed M4A-Genre support (for numeric values)
+- Use udevinfo to find the iPods Firewire-GUID (as /proc/bus/usb/devices is depricated)
+- Support for iPhone: Edit ~/.gnupodrc and add 'model = iphone'
+- Some documentation 'fixes', thanks a lot to Toby Cabot
+- gnupod_addsong.pl: replace wget with curl
+- Use binmode() more often to help Win32
+
+
+GNUpod 0.99.5
+
+Summary
+-------
+- Added Artwork-Support for Video, Nano and 2007-Nano iPods
+  You'll need to set the value 'model' in your configuration file.
+    See doc/gnupodrc.example for more details.
+- Fixed Video-Podcast support for late 2007 iPods
+- Fixed iPod GUID autodetection on linux. GNUpod 0.99.4 failed if the iPod
+  was the last entry of /proc/bus/usb/devices
+- The iTunesDB parsing code is now much more flexible and uses callbacks.
+- Remove UTF8-BOM (Fixes garbage if source was UTF16 encoded)
+- Removed broken lastfm support
+
+
+GNUpod 0.99.4
+
+Summary
+-------
+- Added README_FIRMWARE.txt file
+- Added compilation-patch, thanks to Ray Lortie
+- Rewrote mktunes.pl to be faster and more readable :-)
+- Added support for 2007-iPods (iPod Classic, iPod Nano-2 and iPod Touch (?) )
+  
+  Apple attempted to lockout non-iTunes software by implementing an obscure
+  protection using a sha1-hash. This sucked very bad.. for about 36 hours.
+  This GNUpod release is able to overcome the silly protection. Thanks
+  a lot to 'wtbw' for discovering some random numbers and implementing hash58.cpp
+  
+  Feel free to express your feelings about this
+  issue at http://www.apple.com/feedback/ipod.html
+
+
+
+GNUpod 0.99.3
+
+Summary
+-------
+
+- Fixed invalid warning about broken mhip header. (tunes2pod.pl)
+- Less stricter Podcast-Playlist parsing
+- Reduced MP3::Info false-positives: Empty files are
+  no longer detected as .mp3 files
+- tools/fwpatch.pl: Support for video iPods added (yeah!)
+- gnupod_convert_RIFF.pl: Support for new ffmpeg builds (s/aac/libfaac/)
+- Upgraded from GPLv2 to GPLv3
+
+
+
+GNUpod 0.99.2
+
+Summary
+-------
+
+- Added support for Podcast-Playlists.
+- Filter out bad chars from '--rename' command.
+- Added RVA2 (Normalize) patch by Peter Liljenberg
+- gnupod_INIT.pl: Added --noask option
+- gnupod_addsong.pl: --playlist can now be used multiple times
+- gnupod_addsong.pl: added --playlist-is-podcast command
+- gnupod_addsong.pl: Added workaround for glibc/linux/perl bug/problem (realloc() error)
+- Raised video-bitrate for on-the-fly converting
+- Added configuration option 'automktunes'. Setting
+  'automktunes = 1' inside ~/.gnupodrc eliminates the need
+  to call mktunes.pl after adding/deleting/renaming songs because GNUpod
+  will call mktunes.pl itself.
+- Many internal changes / bugfixes to iTunesDB.pm like fixing an incorrect
+  written mhip size. Playlist parsing has also been rewritten and cleaned up.
+- Bugfix: Do not detect PCM files as movies when using --decode
+
+
+GNUpod 0.99.1 - codename 'Klaus ist eine Wurst'
+
+Summary
+-------
+
+- iTunesDB.pm: Added some new fields and SPL-Defs (Removes some warnings while running tunes2pod / gnupod_INIT)
+- QTFile.pm: Search tracklength inside 'mdhd' as a fallback
+- Added support for iPod-shuffle 2
+
+
+GNUpod 0.99 - codename 'Pentarou'
+
+Summary
+-------
+
+- iPod-Video support
+  gnupod_addsong.pl can now read/add .mp4 files
+
+  Converting .avi (RIFF) files on-the-fly works
+  only IF your ffmpeg binary has AAC Support!
+  (Adding preencoded files works witout ffmpeg)
+
+  Try: gnupod_addsong.pl --decode=video *.avi
+
+- Fixes a playlist problem with iTunes5 (new 100 Mhods)
+
+- '--encode' didn't remove tempfiles from /tmp .. works again
+
+- Added Support for .ape (MAC - http://sourceforge.net/projects/mac-port/) files (use --decode=foo)
+
+- Added 'mediatype' support (for video) and stricter mhit parsing (for very old databases)
+
+- Workaround for broken files written by 'Anapod'
+  Set 'tunes2pod.anapodworkaround=1' inside ~/.gnupodrc
+  to enable it. Enabling it slows down tunes2pod.pl
+  (because it deactivates the fast-skip of the (useless)
+   MasterPlaylist)
+
+- QTFile.pm: rseek() now refuses to return more than 1024 kb. Fixes possible out-of-memory problems
+             with broken files.
+
+- Fixed an obscure gnupod_search.pl bug causing some weird search results.
+
+- Added DESTDIR support (make DESTDIR=/tmp/bla install) and removed slackpkg target (obsoleted)
+
+
+GNUpod 0.98.3 - codename 'Socke'
+
+Summary
+-------
+
+- gnupod_addsong.pl can now fetch podcast-rss feeds!
+  Example: 'gnupod_addsong.pl http://www.tagesschau.de/export/podcast'
+
+- Added basic support for podcast-rss and podcast-guid in tunes2pod.pl and mktunes.pl
+
+- Fixed small bug in FileMagic.pm: UTF16-Tags didn't work.
+  Thanks to Chris Abajian for reporting this issue.
+
+- Read TPE2 / TP2 for MP3-Files
+
+=> Please note: Podcast support is still in BETA and 'real podcasts' are currently not supported
+
+
+
+GNUpod 0.98.2 - codename "Jigen"
+
+Summary
+-------
+
+- Changed the file-detection-type order
+  of FileMagic.pm from:
+  NonNative > QT > MP3 > PCM
+  ..into..
+  NonNative > QT > PCM > MP*
+
+  ..MP3::Info had some false-positives and detected
+  a few PCM-Files as MP3s :-/. The PCM-Detection
+  is much simpler and shouldn't create any false-
+  positives.
+  Thanks to Stefano Vesa for reporting the Problem.
+
+- GNUpod had some problems if the $IPOD_MOUNTPOINT
+  contained whitespaces.
+  Switched to File::Glob::bsd_glob() to fix this issue.
+
+- iPod-Mini 1.4 Software is broken, avoid using it!
+  -> Apple lowered the Max. Pathlength from 64 to
+     55. GNUpod will now crop after 49 chars (who knows what
+     Apple will do next time?)
+     ..you can run 'gnupod_check.pl --fixit' to crop
+     songs you added with an older version.
+  -> Looks like Apple also broke the SmartPlaylists Liveupdate
+     Feature. I couldn't get it to work with iTunes and GNUpod. Good job guys!
+     Since GNUpod only supports 'liveupdate-smartplaylists', you can't
+     use any SPL's with GNUpod and iPod-Mini 1.4 . Downgrading to 1.3 helps.
+
+- gnupod_check.pl has now a --fixit switch. It will try to
+  fix the found errors itself
+
+- Updated documentation: Tell how to extract a
+  Firmware-Image on Linux. (And others? Well, you need
+  HFS+ Support)
+
+  
+
+
+GNUpod 0.98.1 - codename 'Lupin the 3rd'
+
+Summary
+-------
+
+- Added support for multiple On-The-Go playlists.
+
+- gnupod_addsong.pl can now reenocde aac and mp3 'on-the-fly'
+  Usage: gnupod_addsong.pl --reencode 6 *.mp3
+  This would reenocde everything with 'lame -V 6'
+  Use this if you don't have much space left (iPod Shuffle?!)
+  Note: The Reencode option also changes the quality of
+        files converted with '--decode=' :-)
+
+- Added support for m4a 'gnre' tags
+
+- Fixed some iPod-Shuffle issues
+   * mktunes.pl removes the iTunesShuffle leftover
+
+- Remove TARGET-File if File::Copy() failed for any reason
+   => Better handling of 'disk full' but still not perfect
+      [GNUpod should write a 'sparefile' or something like that]
+
+
+GNUpod 0.98 - codename 'Luna 9'
+
+Summary
+-------
+
+- Support for iPod-Shuffle!
+  (I do not know why Apple uses
+   another Database for this thing!!!)
+   Thanks to:
+     * Chris Scott for testing and providing samples
+     * Jeff Thieleke (From FooPod)
+     * ..and Rodja Trappe (Samples + Testing)
+
+- Fixed 'songnum' for ID3V1 Tags .. ouch
+
+- Workaround for perl5.6 feature/bug
+  'addtime' shouldn't be below zero anymore
+
+- Write more tags for m4a files..
+
+- Internal Change: Removed the ugly _itop and _x86itop..
+  I hope i didn't break anything ;)
+
+- Switched from Audio::FLAC to Audio::FLAC::Header
+
+
+
+GNUpod 0.97 - codename guezli
+
+Summary
+-------
+
+- 0.96 didn't write 'tracknum' for OGG Files, fixed now..
+  Thanks to Ed Wandasiewicz for reporting this bug
+
+- Read 'tracknum' on ID3V2 Files with 'TRK' Field
+
+- Handle ID3Tags with Charset info
+
+- You can now add MIDI files ;-) (with timidity)
+
+- Added --set-songnum option for gnupod_addsong.pl
+
+- Rewritten ConverterCore.. shouldn't break anything...
+
+- gnupod_search.pl can now RENAME/Edit tags.
+  use --rename="artist=New artist Name"
+
+- You can now sort playlists:
+  <playlist .. sort="artist"> or (reverse)
+  <playlist .. sort="reverse title">
+
+- Do not generate filenames longer than 64 chars..
+  looks like the iPod Photo has a problem
+  (Thanks to Mathieu Chouquet-Stringer for reporting)
+
+- Added tools/fwpatch.pl. Allows you to convert an
+  EU-iPod into an US-iPod (Make it louder)
+
+
+GNUpod 0.96 - codename 'kartoffelsaft'
+
+Summary
+-------
+
+- Changed --decode switch from gnupod_addsong.pl
+  You can now select the output format of --decode
+  -> pcm(old default) / MP3 (using lame) / AAC (using FAAC)  
+  Example: # gnupod_addsong.pl --decode=mp3 *.flac
+  (Idea and original patch from <daniel at kefa.co.uk>)
+
+- GNUpod can now also convert OGG-Vorbis files
+  (Use --decode=XXX, same as FLAC)
+
+- Added --playlist=STRING switch to gnupod_addsong.pl
+  This creates the playlist 'STRING' and adds all songs
+  passed to gnupod_addsong.pl to this playlist.
+  (Thanks to Bob Cotton)
+
+- Many changes for the M4A parser, should work better now
+  (Searches the SOUND Stream!)
+
+- Write tracknum for AAC/ALAC files (doh!)
+
+- Support for Bookmarks (Just rename .m4a files into .m4b)
+
+- Convert strange Genre-Strings in MP3 Tags ( (17) -> Rock )
+
+- Support for 'Playlist IDs' (Useless feature ATM ;) )
+
+
+GNUpod 0.95 - codename 'sockentier'
+
+
+Summary
+-------
+
+- GNUpod has now a configuration file! Read the docs or/and
+  see doc/gnupodrc.example
+
+- Added funky SmartPlaylist creator, see doc/mkspl.html
+  (Needs JavaScript + DOM => Mozilla)
+  ** SMARTPLAYLIST SYNTAX CHANGED **
+
+- gnupod_addsong.pl can now add FLAC files.
+  'flac' needs to be in your $PATH and it's disabled
+  per default. (Enable it using gnupod_addsong.pl --decode
+  or set 'gnupod_addsong.decode=1' in your config)
+
+- gnupod_addsong.pl can read ALAC (Apples Loseless Audio Codec)
+  files (iTunes creates normal .m4a files)
+
+- Polished Playcounts parser (no hardcoded offsets anymore)
+
+- added '--disable-v2' and '--disable-v1' to
+  gnupod_addsong.pl (Disable parsing of ID3TAG version X)
+
+- Fixed small bug with .m4a files and added more fields.
+  gnupod_addsong.pl can now read M4A/AAC files from www.allofmp3.com
+
+- added tools/m4a-info.pl: Use this tool to read Title/Artist tags
+  from .m4a files (not installed by 'make install')
+
+- You can modify the output of gnupod_search.pl using --view
+  (See 'gnupod_search.pl --help')
+
+- gnupod_addsong.pl checks for wrong extensions
+  (like a mp3-file called 'test.wav'). The iPod wouldn't play
+  such a file.
+
+- Fixed some SmartPlaylist stuff and added support for last
+  playtime
+
+- Added gnupod_check.pl, it check's for 'lost' files
+
+- I changed the 'build' system. Btw, you can now uninstall
+  GNUpod using 'make uninstall' .. but why? :)
+
+- Added manual pages
+
+- GNUpod warns about case-sensitive mounted filesystems
+
+
+
+GNUpod 0.94 - codename 'aspartam'
+
+
+Summary (hmm.. it's a long summary..):
+--------------------------------------
+- Nobody did buy me a 40gb iPod with Firmware 2.x
+
+- I bought one myself
+
+- gnupod_addsong.pl understands .m4a files
+  (= AAC Files written by iTunes)
+  I don't know if it works with DRM files (.m4p?)
+  I don't have any DRM files and i'm not interested
+  in DRM files...
+  If you like to see support for DRM files, send
+  me a patch ;-)
+
+- Added support for On-The-Go playlists!
+  (2.x Firmware-only-feature)
+
+- GNUpod can now handle the 'Rating' set
+  on the iPod (2.x Firmware-only-feature)
+  It does also update the Playcounts on v2
+  iPods
+
+- GNUpod checks if the iTunesDB did change and
+  runs tunes2pod.pl if it has to run it
+
+- Changed rating-schema to match SPL-Rating
+  -> Rating 5 is now 100 (newrating=oldrating*20)
+  mktunes.pl will drop old (= now invalid) ratings,
+  no autoconvert... sorry.. but does anyone care?
+
+- gnupod_addsong.pl understands ID3v2.2 tags
+
+- You'll have to install Digest::MD5
+
+- You can also call your GNUtunesDB
+  GNUtunesDB.xml
+
+
+
+Details:
+--------
+
+I removed the '-x' and '-i' switch, because
+it wouldn't work well together with the
+autosync
+
+FooBar.pm:
+ * connect() changed a lot
+
+FileMagic.pm:
+ * Stupid bug: We can now also read
+   ID3v2.2 tags - Thanks to
+   David Ranch for the Bugreport
+ * Detect Arrays returned by MP3::Info
+   (no ARRAY(XXX) on the iPod anymore :) )
+
+iTunesDB.pm
+ * Added 'Play Counts' parser (=Rating)
+ * Changed rating Schema
+ * _itop() checks for very big values and dies
+
+QTfile.pm
+ * A dirty QuickTime parser
+
+gnupod_otgsync.pl
+ * A new tool, don't use it yourself :)
+   It's only used internal.
+
+
+
+GNUpod 0.93 - codename 'Shorthorn'
+
+Summary:
+--------
+- Reading MusicMatch files should work (again)
+- gnupod_addsong.pl can add WAVE files
+- Parsing large iTunesDB files should be faster
+  (-> we skip the MainPlayList)
+
+
+Details:
+--------
+iTunesDB.pm and co:
+ * Can read and write Playlist-Elements without child
+   tunes2pod.pl couldn't read files written by
+   (newer) MusicMatch releases.. this should fix the issue :)
+ * Don't parse MasterPlaylists, do a seek()
+   -> Speeds up parsing
+ * Read and Write SamplingRate (Helps audible.com files? ..no)
+
+FileMagic.pm
+ * Fixed (Again?) ID3 reading (Charset handling still broken?!)
+ * Read SamplingRate for MP3 Files
+
+XMLhelper.pm
+ * Output is sorted
+
+
+
+
+GNUpod 0.92 - codename 'frau beyersdorf'
+
+-> This version supports SmartPlaylists (BETA!)
+
+iTunesDB.pm:
+  * Fixed the very old 'gnupod versus iTunes' bug
+    -> iTunes shouldn't try to 'resort' playlist items anymore
+       (Note: iTunes will ALWAYS re-sort the playlists.. that's
+        a 'feature' of iTunes)
+  * Added 'eq syntax check', you can use (since 0.90) 
+    'eq="#!#NUMBER#!#' to specify the EQ-Setting per song.
+    mktunes.pl will now check if this syntax is correct.
+    (You'll see a warning if it failed)
+  * Fixed get_string() to handle null-size strings correct
+  * Changed some internal things (using hrefs.. etc)
+  * Misc SPL-Related code
+
+XMLhelper.pm:
+  * Misc cleanups
+  * Added SPL-Support
+  * Added check for playlist duplicates
+  * Fixed escape bug for <playlist name=..
+
+FileMagic.pm
+  * Fixed (?) ID3v2 reading
+
+tunes2pod.pl:
+  * Added paranoia checks (stricter parsing)
+  * Added SPL-Read code (BETA!)
+
+mktunes.pl
+  * Added SPL-Write support
+  * regex-matches are sorted by id
+
+gnupod_addsong.pl:
+  * duplicate-checker displayed the
+    wrong number of the dup, works again
+
+
+
+
+
+GNUpod 0.91 
+
+Much changed from 0.90 to 0.91.
+I removed XML::Simple and use (again)
+XML::Parser (Event based GNUpod.. .. again)
+0.91 needs much less memory...
+
+I hope i didn't break anything.. but...
+
+
+gnupod_search.pl:
+  * -d doesn't delete all songs anymore.. hups..
+  * Playlist-Cleanup works now.. (another stupid bug.. :-/) 
+  * Added '--title' switch to usage
+
+gnupod_addsong.pl:
+  * Can read from STDIN again (use 'gnupod_addsong.pl -')
+    (I forgot this feature ;) )
+
+gnupod_INIT.pl
+  * Added '--france' switch (Limit volume to 100 db for
+    1.x Firmware)
+
+mktunes.pl
+  * New Playlist-Code.. MUCH faster now
+    (Wow.. again? no.. the code of 0.90 was
+     VERY slow with many files (~3000) and more
+     than ~15 big playlists)
+  * Added '--volume' switch: Adjust the volume on the iPod!
+    Use something like 'mktunes.pl --volume 70' to boost
+    the volume by 70% (same as volume="70" in the GNUtunesDB)
+
+XMLhelper.pm
+  * Fixed the cleandoc() bug
+  * Dropped XML::Simple.. it's stupid :-/
+
+..and..
+  Changed 'Win' to 'Windows/W32/etc'
+
+
+
+
+
+GNUpod 0.90
+
+- This is a *COMPLETE* rewrite of GNUpod, expect new bugs
+  and some new features ;)
+
+Highlights:
+
+- Faster (?)
+- REAL Unicode Support (Perl 5.8 and 5.6, .. i hope!)
+- Cleaner Code (?)
+- Support for elements like 'playcount / volume .. etc' (Read the docs)
+
+
+This release isn't perfect but it works nice and i think its good
+enough to be released :)
+
+No Support for AAC (mp4) and SPL (SmartPlayLists) in this release, 
+but AAC Support will be added soon (GNUpod 0.91?) and adding
+SPL Support is possible ;)
+
+
+gnuPod 0.29-rc1
+- Unicode Support!!
+  Use an UNICODE Texteditor to edit the GNUtunesDB..
+  (Like 'yudit' or the gnome2 texteditor)
+  Your old latin1 GNUtunesDB will get converted to an
+  UTF8 version after running tunes2pod.pl/gnupod_addsong.pl or
+  gnupod_delete.pl
+
+  UTF8 Support isn't testet very well, and gnuPod 0.28 maybe more
+  Stable for you.. but as you can see: somebody is working on it ;)
+- 'Rebuild' mode does now *never* check for duplicates
+- gnupod_delete doesn't kill some playlists if you tried to
+  kill ID 0
+
+
+gnuPod 0.28
+- Rewritten Playlistcode for tunes2pod.pl
+- tunes2pod.pl doesn't kill your empty GNUtunesDB anymore
+  if it can't find the iTunesDB
+- mktunes.pl uses now binmode(), maybe this helps
+  RedHat 8 ? .. (and win32 ;) )
+- mktunes.pl is now *much* faster!!
+- the GNUtunesDB written by gnupod_delete.pl looks
+  nicer now :) (id= is now always the first element..)
+
+gnuPod 0.27 codename 'codename'
+- We are now on gnu.org
+- Fixed 'creating playlists' sample in documentation.
+- Firmware 1.1.0 can read FAT32, updatet documentation.
+- gnupod_delete.pl doesn't kill regex playlists anymore (ouch)
+- gnupod_search.pl supports -g(enre)
+ (Thanks to Johan Ruttenberg)
+
+gnuPod 0.26
+- We are going to be a GNU package:
+ > Support for LongOpts
+ > Documentation aviable as TexInfo
+ > GNU-Style build system (configure/make)
+- You can now create (mktunes) and convert (tunes2pod)
+  empty playlists (0 songs)
+  This isn't usefull, but iTunes can do it and we should
+  also be able to do it.
+- tunes2pod supports now buggy, ehr. funny playlists
+  written by MusicMatch
+- Playlists are now sorted on the iPod as they are found
+  in the GNUtunesDB - file
+- mktunes.pl no longer accepts <playlist..> when </file> was
+  not found.
+- gnupod_addsong.pl handles long filenames now better
+- Timestamp should now be set correct
+  (utime(undef,undef.. didn't work on every OS..)
+- new playist keywords. You can now use <regex ..
+  to create a playlist using regular expressions.
+  <regex is case sensitive, use <iregex if you want case INsensitive
+  checking
+
+
+gnuPod 0.25 (API-Freeze i think ;) )
+- New Syntax (We use getopt)
+- Many small bugfixes
+- Fixed mktunes and tunes2pod 'touch' bug
+- tunes2pod creates now a nicer XML file
+- 'composer' added to gnupod_addsong.pl
+- Fixed 'Genere' - 'genre' typo.. args!
+ (Thanks to Guillaume Leclanche)
+- gnupod_addsong.pl knows now winamp genres (NOT generes!! *doh!*)
+- gnupod_addsong.pl can now read from stdin, for example:
+  find /blabla/foo | gnupod_addsong.pl -gm /mnt/ipod -
+ (note the -g switch (no need to press ENTER) and '-')
+ (Many thanks to Scott Savarese)
+
+gnuPod 0.22 
+- Bugfix in tunes2pod for Perl 5.8
+ (Many thanks to Orion Buckminster Montoya)
+- tunes2pod typo corrected *doh!*
+ (Orion Buckminster Montoya again :) )
+- Support for tracknumbers like "01/18"
+ (Many thanks to Darrell Golliher)
+- Support for 'composer' tag (just in XML/iTunesDB, not ID3)
+ (Thanks to Alexey Marinichev for providing the ID :) )
+ 
+ 
+gnuPod 0.21
+- Fixed stupid tunes2pod.pl bug with big iTunesDBs
+ (Thanks to Ciamac Moallemi for reporting and providing a patch)
+- Support for songnum, songs, cdnum, cds and year
+
+
+gnuPod 0.2
+- Changed to XML as file format
+- Added Playlist support
+- Support for new iTunes attributes
+
+
+gnuPod 0.1
+- First working release!

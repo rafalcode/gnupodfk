@@ -1,0 +1,11 @@
+--- XMLhelper.pm.orig	2016-07-22 17:38:11.631804901 +0200
++++ XMLhelper.pm	2016-07-22 17:37:12.131626030 +0200
+@@ -359,7 +359,7 @@
+ 			print OUT " </smartplaylist>\n";
+ 		}
+ 		elsif(my $phr = get_plpref($current_plname)) { #plprefs found..
+-			if (defined(@{$XDAT->{playlists}->{data}->{$current_plname}})) { #the playlist is not empty
++			if (@{$XDAT->{playlists}->{data}->{$current_plname}}) { #the playlist is not empty
+ 				print OUT "\n ".mkfile({playlist=>$phr}, {return=>1,noend=>1})."\n";
+ 				foreach(@{$XDAT->{playlists}->{data}->{$current_plname}}) {
+ 					print OUT "   $_\n";

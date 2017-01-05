@@ -1,0 +1,1368 @@
+This is gnupod.info, produced by makeinfo version 4.8 from gnupod.texi.
+
+   Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 and 2008 Adrian
+Ulrich
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover texts being "A GNU Manual",
+and with the Back-Cover Texts as in (a) below.  A copy of the license
+is included in the section entitled "GNU Free Documentation License".
+
+   (a) The FSF's Back-Cover Text is: "You have freedom to copy and
+modify this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development."
+
+INFO-DIR-SECTION GNU Packages
+START-INFO-DIR-ENTRY
+* GNUpod: (gnupod).        Manage your iPod.
+END-INFO-DIR-ENTRY
+
+
+File: gnupod.info,  Node: Top,  Next: Requirements,  Up: (dir)
+
+1 GNUpod
+********
+
+This edition of the `GNUpod Manual', last updated 17. Feb. 2008,
+documents GNUpod Version 1.00
+
+* Menu:
+
+* Requirements::                    What you will need to use GNUpod
+* Installing GNUpod::               How to install GNUpod and setup FireWire
+* Using GNUpod::                    How to use the GNUpod-tools
+* Problems::                        The FAQ
+
+
+
+Appendices
+
+* GNU Free Documentation License::  This manual is under the GNU Free
+                                    Documentation License.
+
+
+File: gnupod.info,  Node: Requirements,  Next: Installing GNUpod,  Prev: Top,  Up: Top
+
+2 Requirements
+**************
+
+To use GNUpod, the follwing is needed:
+
+   * iPod (HFS+ or FAT32)
+
+   * Firewire card that is supported by the Operating System
+
+   * Write support for HFS+ or FAT32
+
+   * Perl 5.6 or 5.8
+
+   * The Perl modules MP3::Info, File::Copy, Unicode::String,
+     Digest::MD5 and XML::Parser
+
+   * Basic knowledge of the shell
+
+   GNUpod is known to run on GNU/Linux, FreeBSD, Darwin (Mac OSX) and
+Solaris 9.
+
+
+File: gnupod.info,  Node: Installing GNUpod,  Next: Using GNUpod,  Prev: Requirements,  Up: Top
+
+3 Installing GNUpod
+*******************
+
+* Menu:
+
+* Installation of GNUpod::          How to install the Scripts
+* Using FireWire with GNU/Linux::   Setup FireWire on Linux
+* Convert your Mac iPod::           How to convert an HFS+ formatted iPod
+* Firmware update::                 How to upgrade the Firmware using GNU/Linux
+
+
+File: gnupod.info,  Node: Installation of GNUpod,  Next: Using FireWire with GNU/Linux,  Up: Installing GNUpod
+
+3.1 Installation of GNUpod
+==========================
+
+The installation of GNUpod is very simple:
+
+     tar -xzvf gnupod-tools-VERSION.tar.gz
+     cd gnupod-tools/
+     ./configure
+     make install
+
+   The `configure' script checks if the desired Perl modules are
+installed.
+
+   On Debian GNU/Linux you'll simply have to run these commands to
+install the required Perl modules:
+     apt-get install libfile-ncopy-perl
+     apt-get install libmp3-info-perl
+     apt-get install libunicode-string-perl
+     apt-get install libxml-parser-perl
+     apt-get install libxml-simple-perl
+
+   If you are using a RPM-based Distribution (Mandrake, RedHat, SuSE..)
+try http://www.rpmfind.net.
+
+   Another way is to install the modules 'by hand'.
+
+   http://search.cpan.org
+
+   will help you to find the needed tarballs.  If you don't know how to
+install them, please read
+
+   http://cpan.org/misc/cpan-faq.html#How_install_Perl_modules
+
+   (Maybe you'd like to use the CPAN-Shell.. Google knows how to use it
+;-) )
+
+
+File: gnupod.info,  Node: Using FireWire with GNU/Linux,  Next: Convert your Mac iPod,  Prev: Installation of GNUpod,  Up: Installing GNUpod
+
+3.2 Using FireWire with GNU/Linux
+=================================
+
+Of course the Linux kernel must support FireWire. If the one you are
+using doesn't have FireWire support you'll have to recompile your
+Kernel. (It's also a good idea to update the Kernel when you are doing
+this...)
+
+   If you don't know how to compile the Linux kernel, please read
+http://www.kernelnewbies.org/faq/index.php3#compile
+
+   To get FireWire working, you should configure the Kernel like this:
+
+   * Code maturity level options - y
+
+   * IEEE1394 (FireWire)/IEEE 1394 (FireWire) support (Experimental) - y
+
+   * OHCI-1394 support - m
+
+   * SBP-2 support - m
+
+   Feel free to build OHCI-1394 into the kernel ('y'), but make sure to
+compile SBP-2 support as module. It won't work well if you say 'y'
+there!  If you don't own an OHCI-1394 FireWire card you may need to use
+the LYNX driver instead.  But OHCI-1394 is the most common, please also
+have a look at http://www.linux1394.org
+
+   After you reboot with the new Kernel, you should now be able to
+mount the iPod.  First load the OHCI-1394 module if you said 'm' to
+OHCI-1394 support.
+     modprobe ohci1394
+
+   Now plug in the iPod and wait until you can see the 'hook-symbol'
+and load the sbp2 module using
+     modprobe sbp2
+
+   Please keep in mind that FireWire support is still experimental and
+you may see Kernel "oopses" and other nasty things.  If your system
+hangs after loading sbp2 or mounting the iPod you may try to load sbp2
+like this:
+     modprobe sbp2 sbp2_max_speed=0 sbp2_serialize_io=1 sbp2_force_inquiry_hack=1
+
+   This will slow down the transfer rate but should be much more stable.
+Note: Firewire works very well with Linux 2.6. If you have problems
+with Linux 2.4, you may want to upgrade to 2.6!
+
+   After loading sbp2, use `dmesg' to get some information.  The output
+should look like this (if you are running linux 2.4.20 or older):
+
+     SBP-2 module load options:
+     - Max speed supported: S400
+     - Max sectors per I/O supported: 255
+     - Max outstanding commands supported: 8
+     - Max outstanding commands per lun supported: 1
+     - Serialized I/O (debug): no
+     - Exclusive login: yes
+       Vendor: Apple     Model: iPod              Rev: 1.21
+       Type:   Direct-Access                      ANSI SCSI revision: 02
+     Attached scsi removable disk sdb at scsi1, channel 0, id 0, lun 0
+     SCSI device sdb: 9780750 512-byte hdwr sectors (5008 MB)
+     sda: test WP failed, assume Write Enabled
+      sda: sda1 sda2
+
+   In this case, `/dev/sda' would be your iPod.
+
+   Linux 2.4.21 (and newer) doesn't show such verbose output and your
+iPod will not be detected while loading sbp2. Simply run
+`rescan-scsi-bus.sh' which should find your iPod (See /proc/scsi/scsi).
+(You can download 'rescan-scsi-bus.sh' at
+http://www.garloff.de/kurt/linux/rescan-scsi-bus.sh)
+
+   You can now mount the iPod:
+     mount -t vfat /dev/sda2 /mnt/ipod
+
+   It's a good idea to add a line like this to the fstab
+     /dev/sda2   /mnt/ipod   vfat   defaults,user,noauto,umask=000
+
+   Note: avoid adding the 'sync' mount-option for flash based iPods
+(Shuffle, Nano) because flash drives have a limited number of write
+cycles.
+
+   Note2: as you can see, we assume an FAT32/VFAT formatted iPod
+(`-t vfat'); if you own an HFS+ formatted iPod (aka. Mac-iPod) please
+have a look at the next section 'Convert your Mac iPod' before using
+`mount'.
+
+
+File: gnupod.info,  Node: Convert your Mac iPod,  Next: Firmware update,  Prev: Using FireWire with GNU/Linux,  Up: Installing GNUpod
+
+3.3 Convert your Mac iPod
+=========================
+
+If the Operating System you are running doesn't have write support for
+HFS+ and your iPod is HFS+ Formatted (aka 'Mac-iPod') you will have to
+reformat the iPod.
+
+   Note: Linux 2.6.4 includes HFS+ Read/WRITE Support(!)  It's still
+experimental and may do nasty things. (But it works well for me...)  If
+you build your kernel with HFS+ support, you don't have to convert your
+iPod :)
+
+   Please note that you will need an fdisk for DOS-Style partitions,
+you will also need a kernel that supports Mac- (to read the firmware)
+and Dos-style (to access the device after converting it) partitions.
+If you are using GNU/Linux on x86, your fdisk should be fine, but if
+you are running GNU/Linux on (for example) PowerPC you may have to get
+a suitable fdisk from the util-linux package which can be retrieved
+from: ftp://ftp.kernel.org/pub/linux/utils/util-linux/
+
+   Compile and install the pc-fdisk (and only the pc-fdisk!)
+     tar -xjvf util-linux-X.XXx.tar.bz2
+     cd util-linux-X.XXx
+     ./configure
+     cd fdisk
+     make
+     cp fdisk /usr/sbin/pc-fdisk
+
+   We assume that your iPod is at `/dev/sda'. (No, don't mount the
+iPod, simply plugin the iPod and make sure it got detected with `dmesg'.
+
+   Here we go:
+
+   First, we 'backup' the current Firmware
+     dd if=/dev/sda2 of=backup_firmware
+
+   This should result in a ~32MB file, now we have to kill the old
+partition map and force the kernel to re-read the new (empty) map
+     dd if=/dev/zero of=/dev/sda bs=1M count=10
+     rmmod sbp2 && insmod sbp2
+
+   Now we can use 'pc-fdisk' to create a new partition layout:
+     pc-fdisk /dev/sda [start fdisk]
+
+
+     Command (m for help): n [make new partition]
+     Command action
+        e extended
+        p primary partition (1-4)
+     p we want primary
+     Partition number (1-4): 1
+     First cylinder (1-608, default 1): [just press enter]
+     Using default value 1
+     Last cylinder or +size or +sizeM or +sizeK (1-608, default 608): +32M [32M is the default for 1.x iPods]
+
+     Command (m for help): n
+     Command action
+        e extended
+        p primary partition (1-4)
+     p
+     Partition number (1-4): 2
+     First cylinder (6-608, default 6): 6 [Just use the default value, press ENTER (don't worry if it isn't 6)]
+     Using default value 6
+     Last cylinder or +size or +sizeM or +sizeK (6-608, default 608): [press ENTER]
+     Using default value 608 [If you don't own a 5gb iPod, this value will be different, don't care about it]
+
+     Command (m for help): t [Modify type]
+     Partition number (1-4): 1
+     Hex code (type L to list codes): 0 [we don't care about the warning below]
+     Type 0 means free space to many systems
+     (but not to Linux). Having partitions of
+     type 0 is probably unwise. You can delete
+     a partition using the `d' command.
+     Changed system type of partition 1 to 0 (Empty)
+
+     Command (m for help): t
+     Partition number (1-4): 2 [this is where data will go]
+     Hex code (type L to list codes): b [b=FAT32]
+     Changed system type of partition 2 to b (Win95 FAT32)
+
+
+     Command (m for help): w [Writing new partition. Can take a while.]
+     The partition table has been altered!
+
+     Calling ioctl() to re-read partition table.
+     Syncing disks.
+
+   Note: The first partition doesn't have to be 32M, it just needs
+enough space to hold the firmware image (6M would be okay for firmware
+130.bin).  Now we can rewrite the Firmwarebackup we created above.
+     dd if=backup_firmware of=/dev/sda1
+
+   You may ask why we now write the Firmware to sda1 while we read it
+from sda2, the answer is simple: Before running fdisk, the iPod was a
+Mac-iPod with a different Partition layout, but now the iPod is a
+Windows-iPod, belive me: sda1 is correct.
+
+   After writing back the Firmware we can format the iPod:
+     mkfs.vfat -F 32 -n "LUNIX" /dev/sda2
+
+   "LUNIX" is the name of the iPod, you can use another name if you
+like. After mkfs.vfat is done, we remove sbp2:
+     rmmod sbp2
+
+   Unplug the iPod and pray. If everything went well, the iPod boots up
+:).  If not, reread this section, if you are lost, feel free to drop me
+a mail: bug-gnupod@nongnu.org (Btw: If you can't get the iPod into
+diskmode again, try this: Reboot the iPod by pressing  'MENU+PLAY' ~ 5
+seconds. While the iPod is booting, press (and hold) |<<+>>| (=Forced
+Diskmode))
+
+   It's a good idea to edit `/etc/fstab' and add a line for the iPod:
+     /dev/sda2   /mnt/ipod   vfat   defaults,user,noauto,umask=000
+
+
+File: gnupod.info,  Node: Firmware update,  Prev: Convert your Mac iPod,  Up: Installing GNUpod
+
+3.4 Firmware update
+===================
+
+** Don't update the Firmware just for fun, only do it if you need a new
+Firmware and/or the documentation told you to do this **
+
+   Note: These steps do not work on late 2007 iPods (such as Classic,
+Touch and 3th gen. Nano).
+
+   Setup Firewire (or USB) as described in 'Using FireWire with
+GNU/Linux', load the modules and make sure that sbp2 detected your iPod.
+Mount the iPod and run `mktunes.pl' to bring the device into a 'clean'
+state. Unmount the iPod after mktunes.pl finishes but do *not* unplug
+the iPod. Ready? Ok, we assume your iPod is `/dev/sda':
+
+   First you need to get a new Firmware image.  Checkout the latest
+firmware list:
+     wget -O list.gz http://ax.phobos.apple.com.edgesuite.net//WebObjects/MZStore.woa/wa/com.apple.jingle.appserver.client.MZITunesClientCheck/version
+     gunzip list.gz
+
+   Open the list in a text editor and find the correct Fimrware-URL for
+your iPod model:
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3877.20070914.n9gGb/iPod_24.1.0.1.ipsw</string>  iPod Classic (2007)
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2790.20061206.iPr9t/iPod_25.1.2.1.ipsw</string>  iPod Video late 5th Gen (30 or 80 gb)
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3878.20070914.P0omB/iPod_26.1.0.1.ipsw</string>  ipod Nano 3th Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3326.20070507.0Pm87/iPod_29.1.1.3.ipsw</string>  iPod Nano 2nd Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3316.20070618.9n1bC/iPod_130.1.0.3.ipsw</string> iPod Shuffle 2nd Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3317.20070618.nBh6t/iPod_131.1.0.3.ipsw</string> iPod Shuffle 2nd Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2975.20061218.in8Uq/iPod_128.1.1.5.ipsw</string> iPod Shuffle 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2692.20060912.pODcW/iPod_10.3.1.1.ipsw</string>  iPod Clickwheel
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2694.20060912.ipDcD/iPod_11.1.2.1.ipsw</string>  iPod Photo
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2788.20061206.nS1yA/iPod_13.1.2.1.ipsw</string>  iPod 5th Gen.
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3190.20070315.p0oj7/iPod_14.1.3.1.ipsw</string>  iPod Nano 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3191.20070315.BgV6t/iPod_17.1.3.1.ipsw</string>  iPod Nano 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-3325.20070507.KnB7v/iPod_19.1.1.3.ipsw</string>  iPod Nano 2nd Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2686.20060912.ipTsW/iPod_1.1.5.ipsw</string>     Scroll-Wheel iPod (1st iPod ever)
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2687.20060912.IPwdC/iPod_2.2.3.ipsw</string>     iPod 'Dock connector'
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2688.20060912.iDMni/iPod_3.1.4.1.ipsw</string>   iPod mini 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2691.20060912.ipDcw/iPod_4.3.1.1.ipsw</string>   iPod Clickwheel
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2693.20060912.PdwCD/iPod_5.1.2.1.ipsw</string>   iPod Photo
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2689.20060912.ipDmn/iPod_6.1.4.1.ipsw</string>   iPod mini 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2690.20060912.PdMin/iPod_7.1.4.1.ipsw</string>   iPod mini 2nd Generation (?)
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2953.20061218.yRet5/iPod_129.1.1.5.ipsw</string> iPod Shuffle 1st Generation
+         <string>http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2789.20061206.9IIut/iPod_20.1.2.1.ipsw</string>  iPod 5th Gen.
+
+   Download the correct firmware image for your iPod
+(http://docs.info.apple.com/article.html?artnum=61688 should help you
+identify our iPod model) and extract it:
+     # Example for ipod photo: iPod_11.1.2.1.ipsw : 11 = Model (Photo) 1.2.1 = Firmware version
+     wget http://appldnld.apple.com.edgesuite.net/content.info.apple.com/iPod/SBML/osx/bundles/061-2694.20060912.ipDcD/iPod_11.1.2.1.ipsw
+     unzip iPod_11.1.2.1.ipsw
+       Archive:  iPod_11.1.2.1.ipsw
+         inflating: Firmware-11.4.2.1
+         inflating: manifest.plist
+
+   Ok, we are now ready to write the new firmware to the iPod.
+
+   If your iPod is HFS+ Formatted (your kernel supports 'mac-style'
+partitions??), use
+     dd if=Firmware-11.4.2.1 of=/dev/sda2  # <-- this is the extracted image, do NOT write the .ipsw file!
+     sync
+
+   to upgrade the Firmware. If you own a FAT32 Formatted iPod (most
+common), use
+     dd if=Firmware-11.4.2.1 of=/dev/sda1 # <-- this is the extracted image, do NOT write the .ipsw file!
+     sync
+
+   After `dd' finished (it can take some time), run a `sync' and unplug
+the iPod.
+
+   Please note: Your Warranty Is Now Void ;-)
+
+   And please don't blame me if your iPod dies...
+
+
+File: gnupod.info,  Node: Using GNUpod,  Next: Problems,  Prev: Installing GNUpod,  Up: Top
+
+4 Using GNUpod
+**************
+
+* Menu:
+
+* Preparation::                     How to mount and prepare the iPod for GNUpod
+* Configuration::                   Learn about the Configuartion File
+* Add files::                       How to add MP3 files to the iPod
+* Search files::                    How to search for files on the iPod
+* Remove files::                    How to delete files on the iPod
+* Edit tags::                       How to change/edit/rename
+* Creating playlists::              How to create a playlist
+* Dealing with podcasts::           How to create a podcast playlist
+* Adding cover artwork::            How to edit/add artwork.
+* Unplug the iPod::                 How to unplug the iPod (Not a joke.. read it)
+* Recovering files::                How to rebuild the Database if you lost the iTunesDB & GNUtunesDB
+* Coexistence::                     iTunes/Music Match/xtunes/Ehpod user? Read this!
+* Late 2007 iPods::                 Information about iPod Classic, Touch and 3th gen Nano
+
+
+File: gnupod.info,  Node: Preparation,  Next: Configuration,  Up: Using GNUpod
+
+4.1 Preparation
+===============
+
+Mount the iPod (I assume you mount it at /mnt/ipod) as described in
+'Using FireWire with GNUpod'
+
+   If the iPod is freshly formatted or you never used GNUpod before
+with this iPod, run
+     gnupod_INIT.pl -m /mnt/ipod
+
+   gnupod_INIT.pl will create the default directory tree and creates an
+empty GNUtunesDB (or if it finds an iTunesDB, it runs tunes2pod.pl to
+convert the iTunesDB to an GNUtunesDB)
+
+   Use
+     gnupod_INIT.pl -m /mnt/ipod --france
+
+   if you would like to enable the 'EU-Volume-Limit' (=decrease max.
+volume).  This only works for iPods running Firmware 1.x
+
+   Your iPod is now ready for GNUpod!
+
+
+File: gnupod.info,  Node: Configuration,  Next: Add files,  Prev: Preparation,  Up: Using GNUpod
+
+4.2 Configuration
+=================
+
+(Note: You don't need to bother with the Configfile. GNUpod works fine
+without it, but it could make your life easier)
+
+   GNUpod >= 0.95 can read a simple Configfile.  An example comes with
+GNUpod, see doc/gnupodrc.example
+
+   Edit this file and save it as ~/.gnupodrc or on your iPod
+(iPod_Control/.gnupod/gnupodrc)
+
+
+File: gnupod.info,  Node: Add files,  Next: Search files,  Prev: Configuration,  Up: Using GNUpod
+
+4.3 Add files
+=============
+
+To add files, we use the script called `gnupod_addsong.pl'.
+
+   First, mount the iPod (eg. at /mnt/ipod) if it isn't mounted.
+
+   If you would like to add the file /tmp/foo.mp3, run
+gnupod_addsong.pl like this:
+     gnupod_addsong.pl -m /mnt/ipod /tmp/foo.mp3
+
+   You can also use wildcards:
+     gnupod_addsong.pl -m /mnt/ipod /mnt/mp3/seiken_densetsu2_ost/* /mnt/mp3/xenogears/ost?/*
+
+   It isn't possible to add the same MP3 multiple times,
+gnupod_addsong.pl detects duplicates (Duplicate = same filesize/time
+and ID3Tag name). You can disable the duplicate-detection with the
+'-duplicate' switch.
+
+   gnupod_addsong.pl understands MP3/WAV (RIFF) and M4A (Apple AAC - NO
+DRM!) files.
+
+   It can also convert FLAC and OGG files on-the-fly:
+
+   Using this example, it would convert the two files into MP3 and add
+them to the iPod.
+
+     gnupod_addsong.pl -m /mnt/ipod myfile.flac myfile.ogg --decode=mp3
+
+   (Note: To use all features of -decode, you will have to install
+Audio::FLAC::Header, Ogg::Vorbis::Header::PurePerl, lame, flac, oggenc
+and faac)
+
+   gnupod_addsong.pl tries to 'auto-detect' the encoding of the ID3 Tag.
+Sometimes this works (in most cases ;) ) sometimes it doesn't. If it
+doesn't work for you, feel free to send me an example-file:
+pab@blinkenligts.ch
+
+   DO NOT umount the iPod yet! First read the section 'Unplug the iPod'!
+
+
+File: gnupod.info,  Node: Search files,  Next: Remove files,  Prev: Add files,  Up: Using GNUpod
+
+4.4 Search files
+================
+
+GNUpod includes a tool called `gnupod_search.pl' that helps you search
+for files.
+
+   Maybe you would like to search for the artist called 'Schlummiguch'.
+In this case, run
+     gnupod_search.pl -m /mnt/ipod -a "Schlummiguch"
+
+   Note: gnupod_search.pl assumes RegExp input.  Please have a look at
+`gnupod_search.pl --help' for more information.
+
+
+File: gnupod.info,  Node: Remove files,  Next: Edit tags,  Prev: Search files,  Up: Using GNUpod
+
+4.5 Remove files
+================
+
+Removing files is done using `gnupod_search.pl -d'.  To Remove all
+files from the artist 'Schlummiguch', run
+     gnupod_search.pl -m /mnt/ipod -a "Schlummiguch" -d
+
+
+File: gnupod.info,  Node: Edit tags,  Next: Creating playlists,  Prev: Remove files,  Up: Using GNUpod
+
+4.6 Edit tags
+=============
+
+You can use `gnupod_search.pl' to edit tags (like artist, album, etc..)
+
+     gnupod_search.pl --artist="Alfred Neumann" --rename="artist=John Doe" --rename="rating=100"
+
+   This example searches all files from 'Alfred Neumann', changes the
+artist into 'John Doe' and sets the rating to 5 Stars (5*20=100)
+
+   Don't forget to run mktunes.pl!
+
+   You could also edit the GNUtunesDB.xml with a text editor :-)
+
+
+File: gnupod.info,  Node: Creating playlists,  Next: Dealing with podcasts,  Prev: Edit tags,  Up: Using GNUpod
+
+4.7 Creating playlists
+======================
+
+Open the file `iPod_Control/.gnupod/GNUtunesDB' in a editor (It's an
+XML File).
+
+   To create a playlist named 'sweet' which holds the songs with the ID
+1 and 2, create something like this:
+     <playlist name="sweet">
+      <add id="1" />
+      <add id="2" />
+     </playlist>
+
+   You are not limited to use 'id', you can also use other attributes:
+     <playlist name="bogus">
+      <add album="seiken densetsu" bitrate="256" />
+     </playlist>
+   This would add every song from the album 'Seiken Densetsu' (<add..
+is case INsensitive) with a bitrate of 256kbit/s.
+
+   Since GNUpod 0.26 it's also possible to use Regular Expressions
+(Regex).  See `perldoc perlre' to learn more about this
+
+     <playlist name="Regex Demo">
+      <regex album="^A" />
+      <iregex album="^b" />
+     </playlist>
+
+   <regex is case sensitive, use <iregex to do case insensitive
+matching.
+
+   It's also possible to sort a playlist:
+
+     <playlist name="By Album" sort="album">
+      <regex artist="bach" />
+     </playlist>
+
+   This adds all songs from Bach, sorted by album (a..z). You can use
+every `<file ..>' item (id, bitrate, title..) for `sort'.  Add 'reverse
+' at the beginning, to reverse the sorting:
+
+     <playlist name="By Title" sort="reverse title">
+      <regex artist="U2" />
+     </playlist>
+
+   You can also use Smart-Playlists with Firmware >= 2.x
+
+      <smartplaylist checkrule="spl" liveupdate="1" name="Example SPL1" >
+        <spl action="eq" field="playcount" string="0" />
+        <spl action="IS" field="artist" string="Jon Doe" />
+      </smartplaylist>
+
+       <smartplaylist checkrule="spl" liveupdate="1" name="Example SPL2" >
+        <spl action="gt" field="bitrate" string="311" />
+      </smartplaylist>
+
+   'Example SPL1' matches all songs from 'Jon Doe' with playcount==0 (=
+All songs from Jon Doe that heven't been played yet) 'Example SPL2'
+matches all songs with a Bitrate > 331.  (See also
+README.smartplaylists)
+
+   For more examples have a look at `doc/gnutunesdb.example' included
+in the GNUpod tarball.  Also check out
+http://blinkenlights.ch/gnupod/mkspl.html for a 'JavaScript SPL-Creator'
+
+   You can also use the -playlist option of gnupod_addsong.pl. This
+will create and add the listed songs to the named playlist.
+
+   Don't forget to run mktunes before umounting! (See 'Unplug the iPod')
+
+
+File: gnupod.info,  Node: Dealing with podcasts,  Next: Adding cover artwork,  Prev: Creating playlists,  Up: Using GNUpod
+
+4.8 Dealing with podcasts
+=========================
+
+To create a podcast playlist you just need to set the podcast flag to
+'1':
+
+      <playlist name="Test Podcast" podcast="1">
+        <iregex artist="John Doe" />
+      </playlist>
+
+   Such a playlist will show up as a Podcast after running mktunes.pl
+
+   gnupod_addsong.pl can also download podcasts and create such
+playlists itself:
+
+     gnupod_addsong.pl -p "Heute Morgen" --playlist-is-podcast http://pod.drs.ch/heutemorgen_mpx.xml
+
+   Running this command will create a Playlist called 'Heute Morgen'
+(`-p') and set `podcast="1"' (`--playlist-is-podcast').
+`gnupod_addsong.pl' will then fetch the podcast from
+`http://pod.drs.ch/heutemorgen_mpx.xml', download all (new) files and
+add them to the 'Heute Morgen' playlist!
+
+
+File: gnupod.info,  Node: Adding cover artwork,  Next: Unplug the iPod,  Prev: Dealing with podcasts,  Up: Using GNUpod
+
+4.9 Adding cover artwork
+========================
+
+GNUpod can write cover artwork for video, nano and late 2007-nano
+iPods. The internal image format is model specific, so you should give
+GNUpod a hint about the image format it should use.
+
+   If you own a video (compatible) iPod, set:
+     model = video
+   in your gnupod configuration file (found at ~/.gnupodrc or
+$IPOD_MOUNTPOINT/iPod_Control/.gnupod/gnupodrc , see
+doc/gnupodrc.exmaple for more details).  For the iPod nano you should
+use:
+     model = nano
+   Late 2007-nanos need this setting:
+     model = nano_3g
+   Late 2008-nanos need this setting:
+     model = nano_4g
+
+   To specify a cover while adding files you'd use the `--artwork'
+switch of `gnupod_addsong.pl'. Example:
+     gnupod_addsong.pl --artwork cover.jpg *.mp3
+
+   Use `gnupod_search.pl' to change/add artwork for existing files.
+Example:
+     # Set cover.jpg as artwork for all songs that match album =~ /Katamari/i
+     gnupod_search.pl --artwork cover.jpg --album Katamari
+
+   don't forget to run `mktunes.pl' afterwards.
+
+   Note: Artwork added by GNUpod may vanish after using iTunes: GNUpod
+does not inject the artwork into the id3-header of the file.  If iTunes
+finds such a file (while scanning / changing tags) the artwork may get
+dropped.
+
+
+File: gnupod.info,  Node: Unplug the iPod,  Next: Recovering files,  Prev: Adding cover artwork,  Up: Using GNUpod
+
+4.10 Unplug the iPod
+====================
+
+Before umounting the iPod, you have to call `mktunes.pl' which will
+parse the GNUtunesDB XML file and convert it into the iTunesDB format.
+
+   Simply run
+     mktunes.pl -m /mnt/ipod
+
+   Note: Since GNUpod 0.91, mktunes.pl has a '-volume' option which you
+can use to boost the Volume.
+
+     mktunes.pl -m /mnt/ipod --volume 40
+
+   This would adjust the volume +40 percent. (You can also use '-100'
+to get a silent iPod ;) )
+
+   After `mktunes.pl' is done, you can umount the iPod and remove the
+sbp2 module
+     umount /mnt/ipod
+     rmmod sbp2
+
+   Added songs won't be visible on the iPod if you did not run
+mktunes.pl before umounting the iPod.  (If you forgot to run
+`mktunes.pl' before unpluging/umounting, simply mount the iPod again
+and run it)
+
+
+File: gnupod.info,  Node: Recovering files,  Next: Coexistence,  Prev: Unplug the iPod,  Up: Using GNUpod
+
+4.11 Recovering files
+=====================
+
+If your computer crashed while uploading/deleting songs, you may have
+some 'zombie' files.
+
+   In this case, you can use 'gnupod_check.pl' to search 'lost' files.
+gnupod_check.pl will tell you what you could do to fix it.
+
+   If gnupod_check.pl found many errors (or you lost your
+GNUtunesDB.xml), you can 'rebuild' an GNUtunesDB using
+`gnupod_addsong.pl'
+
+     gnupod_addsong.pl --restore -m /mnt/ipod
+
+   First, it will create a clean, empty GNUtunesDB, it won't delete any
+songs on the iPod.  Then, `gnupod_addsong.pl --restore' will re-create
+a GNUtunesDB including the Songs which are on the iPod
+
+   I think nobody will ever have to do this.. but it maybe usefull to
+know that it's possible (Note: Of course you'll lose your Playlists)
+
+
+File: gnupod.info,  Node: Coexistence,  Next: Late 2007 iPods,  Prev: Recovering files,  Up: Using GNUpod
+
+4.12 Coexistence
+================
+
+GNUpod can coexist with iTunes and other programs for the iPod.
+
+   If you want to use an iPod with GNUpod and used something other than
+GNUpod (maybe iTunes)  to perform the last update (adding songs,
+editing playists.. doing something..), you'll have to  use
+`tunes2pod.pl' to update the (outdated) GNUtunesDB.
+
+   Mount the iPod and run
+     tunes2pod.pl -m /mnt/ipod
+
+   The iPod is now ready again for GNUpod.
+
+   You have to do this because GNUpod stores its information in the
+GNUtunesDB, but other programs access the iTunesDB directly. After you
+did something with eg. iTunes, the GNUtunesDB would be 'outdated' and
+you would lose any changes you made with iTunes. Running `tunes2pod.pl'
+will write a new GNUtunesDB which reflects the content of the current
+iTunesDB.
+
+   You sould avoid the use of 'extended playlist support' if you use
+your iPod with other programs.
+
+   The Playlist part of this file...
+     <files>
+     <file id="1" title="hello" album="foo"..
+     <file id="2" title="boing" album="foo"..
+     </files>
+     <playlist name="extended">
+      <add album="foo" />
+     </playlist>
+
+   ..would look like this after using tunes2pod.pl
+     ...
+     <playist name="extended">
+      <add id="1" />
+      <add id="2" />
+     </playlist>
+
+   The songs are still in the playlists, but the expressions you wrote
+are 'lost'.
+
+
+File: gnupod.info,  Node: Late 2007 iPods,  Prev: Coexistence,  Up: Using GNUpod
+
+4.13 Late 2007 iPods
+====================
+
+Late 2007 iPod models (3gen Nano, Classic, Touch) refuse to work unless
+the iTunesDB has been signed with a sha1 hash.  This hash helps to
+detect corrupted databases, prevents sharing an iTunesDB between
+multiple iPods and locks out non-apple software. GNUpod is able to
+create the required hash value if it knows the iPods serial number,
+this is a 16 chars long hex value such as: `000ba3100310abcf' and
+should be autodetected on GNU/Linux (via `/proc/bus/usb/devices') and
+Solaris (via `prtconf -v').  If GNUpod somehow fails to find the
+correct serial number of your iPod you'll have to specify the correct
+value using the `--fwguid' switch of `mktunes.pl'.
+
+
+File: gnupod.info,  Node: Problems,  Next: GNU Free Documentation License,  Prev: Using GNUpod,  Up: Top
+
+5 Problems
+**********
+
+* Menu:
+
+* GNUtunesDB::                      What is the GNUtunesDB?
+* Get rid of '-m'::                 You don't like the -m switch?
+* Known bugs and limitations::      GNUpod isn't perfect :)
+* Reporting Bugs::                  How to report a Bug
+
+
+File: gnupod.info,  Node: GNUtunesDB,  Next: Get rid of '-m',  Up: Problems
+
+5.1 GNUtunesDB
+==============
+
+We talked a lot about the 'GNUtunesDB' and the 'iTunesDB' files, but
+why do we need these two files and what's the difference ?
+
+   Well, you can find the iTunesDB on your iPod at
+`iPod_Control/iTunes/iTunesDB' .  This file is read by the iPod when
+you 'boot' the device.  The iTunesDB is a small Database and stores
+information about all MP3s on the iPod (Title, Artist, Path,
+Bitrate...) and all Playlists: everything the iPod needs to know.
+
+   The iTunesDB is a proprietary file format created by Apple.
+
+   The GNUtunesDB (`iPod_Control/.gnupod/GNUtunesDB') holds the same
+information like the iTunesDB, but it's a simple XML file: easy to
+understand by humans and easy to edit by hand.
+
+   Everytime you run `tunes2pod.pl', the iTunesDB will get parsed and
+converted into an XML File (the GNUtunesDB).  `mktunes.pl' does the
+opposite: it parses the XML file and creates an iTunesDB (for the iPod
+and iTunes)
+
+   Only mktunes.pl and tunes2pod.pl have to worry about the iTunesDB
+format: all other tools (gnupod_addsong.pl for example) only have to
+deal with the XML file called GNUtunesDB.
+
+   It's important to keep the iTunesDB and GNUtunesDB 'in sync', so
+everytime you change the GNUtunesDB (by hand or using
+gnupod_something.pl) you'll have to run `mktunes.pl'.
+
+   If 'you' changed the iTunesDB (using gtkPod/iTunes/Ehpod), run
+`tunes2pod.pl' *before* using any other GNUpod commands.
+
+
+File: gnupod.info,  Node: Get rid of '-m',  Next: Known bugs and limitations,  Prev: GNUtunesDB,  Up: Problems
+
+5.2 Get rid of '-m'
+===================
+
+You don't have to use the '-m' switch if you set IPOD_MOUNTPOINT.
+(Example for the BASH shell)
+     export IPOD_MOUNTPOINT="/mnt/ipod"
+
+
+File: gnupod.info,  Node: Known bugs and limitations,  Next: Reporting Bugs,  Prev: Get rid of '-m',  Up: Problems
+
+5.3 Known bugs and limitations
+==============================
+
+   * Smartplaylist support is incomplete (No liveupdate)
+
+   * GNUpod doesn't like Audible.com and DRM Files
+
+
+File: gnupod.info,  Node: Reporting Bugs,  Prev: Known bugs and limitations,  Up: Problems
+
+5.4 Reporting Bugs
+==================
+
+To report a bug, send a mail to bug-gnupod@nongnu.org
+
+   Include as much information as possible.
+
+   You may want to attach the files iPod_Control/.gnupod/GNUtunesDB and
+iPod_Control/iTunes/iTunesDB.  But please use gzip or bzip2 to compress
+the files.
+
+   Please do not send me any mp3 files without asking me.
+
+
+File: gnupod.info,  Node: GNU Free Documentation License,  Prev: Problems,  Up: Top
+
+Appendix A GNU Free Documentation License
+*****************************************
+
+                      Version 1.2, November 2002
+
+     Copyright (C) 2000,2001,2002 Free Software Foundation, Inc.
+     59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
+
+     Everyone is permitted to copy and distribute verbatim copies
+     of this license document, but changing it is not allowed.
+
+  0. PREAMBLE
+
+     The purpose of this License is to make a manual, textbook, or other
+     functional and useful document "free" in the sense of freedom: to
+     assure everyone the effective freedom to copy and redistribute it,
+     with or without modifying it, either commercially or
+     noncommercially.  Secondarily, this License preserves for the
+     author and publisher a way to get credit for their work, while not
+     being considered responsible for modifications made by others.
+
+     This License is a kind of "copyleft", which means that derivative
+     works of the document must themselves be free in the same sense.
+     It complements the GNU General Public License, which is a copyleft
+     license designed for free software.
+
+     We have designed this License in order to use it for manuals for
+     free software, because free software needs free documentation: a
+     free program should come with manuals providing the same freedoms
+     that the software does.  But this License is not limited to
+     software manuals; it can be used for any textual work, regardless
+     of subject matter or whether it is published as a printed book.
+     We recommend this License principally for works whose purpose is
+     instruction or reference.
+
+  1. APPLICABILITY AND DEFINITIONS
+
+     This License applies to any manual or other work, in any medium,
+     that contains a notice placed by the copyright holder saying it
+     can be distributed under the terms of this License.  Such a notice
+     grants a world-wide, royalty-free license, unlimited in duration,
+     to use that work under the conditions stated herein.  The
+     "Document", below, refers to any such manual or work.  Any member
+     of the public is a licensee, and is addressed as "you".  You
+     accept the license if you copy, modify or distribute the work in a
+     way requiring permission under copyright law.
+
+     A "Modified Version" of the Document means any work containing the
+     Document or a portion of it, either copied verbatim, or with
+     modifications and/or translated into another language.
+
+     A "Secondary Section" is a named appendix or a front-matter section
+     of the Document that deals exclusively with the relationship of the
+     publishers or authors of the Document to the Document's overall
+     subject (or to related matters) and contains nothing that could
+     fall directly within that overall subject.  (Thus, if the Document
+     is in part a textbook of mathematics, a Secondary Section may not
+     explain any mathematics.)  The relationship could be a matter of
+     historical connection with the subject or with related matters, or
+     of legal, commercial, philosophical, ethical or political position
+     regarding them.
+
+     The "Invariant Sections" are certain Secondary Sections whose
+     titles are designated, as being those of Invariant Sections, in
+     the notice that says that the Document is released under this
+     License.  If a section does not fit the above definition of
+     Secondary then it is not allowed to be designated as Invariant.
+     The Document may contain zero Invariant Sections.  If the Document
+     does not identify any Invariant Sections then there are none.
+
+     The "Cover Texts" are certain short passages of text that are
+     listed, as Front-Cover Texts or Back-Cover Texts, in the notice
+     that says that the Document is released under this License.  A
+     Front-Cover Text may be at most 5 words, and a Back-Cover Text may
+     be at most 25 words.
+
+     A "Transparent" copy of the Document means a machine-readable copy,
+     represented in a format whose specification is available to the
+     general public, that is suitable for revising the document
+     straightforwardly with generic text editors or (for images
+     composed of pixels) generic paint programs or (for drawings) some
+     widely available drawing editor, and that is suitable for input to
+     text formatters or for automatic translation to a variety of
+     formats suitable for input to text formatters.  A copy made in an
+     otherwise Transparent file format whose markup, or absence of
+     markup, has been arranged to thwart or discourage subsequent
+     modification by readers is not Transparent.  An image format is
+     not Transparent if used for any substantial amount of text.  A
+     copy that is not "Transparent" is called "Opaque".
+
+     Examples of suitable formats for Transparent copies include plain
+     ASCII without markup, Texinfo input format, LaTeX input format,
+     SGML or XML using a publicly available DTD, and
+     standard-conforming simple HTML, PostScript or PDF designed for
+     human modification.  Examples of transparent image formats include
+     PNG, XCF and JPG.  Opaque formats include proprietary formats that
+     can be read and edited only by proprietary word processors, SGML or
+     XML for which the DTD and/or processing tools are not generally
+     available, and the machine-generated HTML, PostScript or PDF
+     produced by some word processors for output purposes only.
+
+     The "Title Page" means, for a printed book, the title page itself,
+     plus such following pages as are needed to hold, legibly, the
+     material this License requires to appear in the title page.  For
+     works in formats which do not have any title page as such, "Title
+     Page" means the text near the most prominent appearance of the
+     work's title, preceding the beginning of the body of the text.
+
+     A section "Entitled XYZ" means a named subunit of the Document
+     whose title either is precisely XYZ or contains XYZ in parentheses
+     following text that translates XYZ in another language.  (Here XYZ
+     stands for a specific section name mentioned below, such as
+     "Acknowledgements", "Dedications", "Endorsements", or "History".)
+     To "Preserve the Title" of such a section when you modify the
+     Document means that it remains a section "Entitled XYZ" according
+     to this definition.
+
+     The Document may include Warranty Disclaimers next to the notice
+     which states that this License applies to the Document.  These
+     Warranty Disclaimers are considered to be included by reference in
+     this License, but only as regards disclaiming warranties: any other
+     implication that these Warranty Disclaimers may have is void and
+     has no effect on the meaning of this License.
+
+  2. VERBATIM COPYING
+
+     You may copy and distribute the Document in any medium, either
+     commercially or noncommercially, provided that this License, the
+     copyright notices, and the license notice saying this License
+     applies to the Document are reproduced in all copies, and that you
+     add no other conditions whatsoever to those of this License.  You
+     may not use technical measures to obstruct or control the reading
+     or further copying of the copies you make or distribute.  However,
+     you may accept compensation in exchange for copies.  If you
+     distribute a large enough number of copies you must also follow
+     the conditions in section 3.
+
+     You may also lend copies, under the same conditions stated above,
+     and you may publicly display copies.
+
+  3. COPYING IN QUANTITY
+
+     If you publish printed copies (or copies in media that commonly
+     have printed covers) of the Document, numbering more than 100, and
+     the Document's license notice requires Cover Texts, you must
+     enclose the copies in covers that carry, clearly and legibly, all
+     these Cover Texts: Front-Cover Texts on the front cover, and
+     Back-Cover Texts on the back cover.  Both covers must also clearly
+     and legibly identify you as the publisher of these copies.  The
+     front cover must present the full title with all words of the
+     title equally prominent and visible.  You may add other material
+     on the covers in addition.  Copying with changes limited to the
+     covers, as long as they preserve the title of the Document and
+     satisfy these conditions, can be treated as verbatim copying in
+     other respects.
+
+     If the required texts for either cover are too voluminous to fit
+     legibly, you should put the first ones listed (as many as fit
+     reasonably) on the actual cover, and continue the rest onto
+     adjacent pages.
+
+     If you publish or distribute Opaque copies of the Document
+     numbering more than 100, you must either include a
+     machine-readable Transparent copy along with each Opaque copy, or
+     state in or with each Opaque copy a computer-network location from
+     which the general network-using public has access to download
+     using public-standard network protocols a complete Transparent
+     copy of the Document, free of added material.  If you use the
+     latter option, you must take reasonably prudent steps, when you
+     begin distribution of Opaque copies in quantity, to ensure that
+     this Transparent copy will remain thus accessible at the stated
+     location until at least one year after the last time you
+     distribute an Opaque copy (directly or through your agents or
+     retailers) of that edition to the public.
+
+     It is requested, but not required, that you contact the authors of
+     the Document well before redistributing any large number of
+     copies, to give them a chance to provide you with an updated
+     version of the Document.
+
+  4. MODIFICATIONS
+
+     You may copy and distribute a Modified Version of the Document
+     under the conditions of sections 2 and 3 above, provided that you
+     release the Modified Version under precisely this License, with
+     the Modified Version filling the role of the Document, thus
+     licensing distribution and modification of the Modified Version to
+     whoever possesses a copy of it.  In addition, you must do these
+     things in the Modified Version:
+
+       A. Use in the Title Page (and on the covers, if any) a title
+          distinct from that of the Document, and from those of
+          previous versions (which should, if there were any, be listed
+          in the History section of the Document).  You may use the
+          same title as a previous version if the original publisher of
+          that version gives permission.
+
+       B. List on the Title Page, as authors, one or more persons or
+          entities responsible for authorship of the modifications in
+          the Modified Version, together with at least five of the
+          principal authors of the Document (all of its principal
+          authors, if it has fewer than five), unless they release you
+          from this requirement.
+
+       C. State on the Title page the name of the publisher of the
+          Modified Version, as the publisher.
+
+       D. Preserve all the copyright notices of the Document.
+
+       E. Add an appropriate copyright notice for your modifications
+          adjacent to the other copyright notices.
+
+       F. Include, immediately after the copyright notices, a license
+          notice giving the public permission to use the Modified
+          Version under the terms of this License, in the form shown in
+          the Addendum below.
+
+       G. Preserve in that license notice the full lists of Invariant
+          Sections and required Cover Texts given in the Document's
+          license notice.
+
+       H. Include an unaltered copy of this License.
+
+       I. Preserve the section Entitled "History", Preserve its Title,
+          and add to it an item stating at least the title, year, new
+          authors, and publisher of the Modified Version as given on
+          the Title Page.  If there is no section Entitled "History" in
+          the Document, create one stating the title, year, authors,
+          and publisher of the Document as given on its Title Page,
+          then add an item describing the Modified Version as stated in
+          the previous sentence.
+
+       J. Preserve the network location, if any, given in the Document
+          for public access to a Transparent copy of the Document, and
+          likewise the network locations given in the Document for
+          previous versions it was based on.  These may be placed in
+          the "History" section.  You may omit a network location for a
+          work that was published at least four years before the
+          Document itself, or if the original publisher of the version
+          it refers to gives permission.
+
+       K. For any section Entitled "Acknowledgements" or "Dedications",
+          Preserve the Title of the section, and preserve in the
+          section all the substance and tone of each of the contributor
+          acknowledgements and/or dedications given therein.
+
+       L. Preserve all the Invariant Sections of the Document,
+          unaltered in their text and in their titles.  Section numbers
+          or the equivalent are not considered part of the section
+          titles.
+
+       M. Delete any section Entitled "Endorsements".  Such a section
+          may not be included in the Modified Version.
+
+       N. Do not retitle any existing section to be Entitled
+          "Endorsements" or to conflict in title with any Invariant
+          Section.
+
+       O. Preserve any Warranty Disclaimers.
+
+     If the Modified Version includes new front-matter sections or
+     appendices that qualify as Secondary Sections and contain no
+     material copied from the Document, you may at your option
+     designate some or all of these sections as invariant.  To do this,
+     add their titles to the list of Invariant Sections in the Modified
+     Version's license notice.  These titles must be distinct from any
+     other section titles.
+
+     You may add a section Entitled "Endorsements", provided it contains
+     nothing but endorsements of your Modified Version by various
+     parties--for example, statements of peer review or that the text
+     has been approved by an organization as the authoritative
+     definition of a standard.
+
+     You may add a passage of up to five words as a Front-Cover Text,
+     and a passage of up to 25 words as a Back-Cover Text, to the end
+     of the list of Cover Texts in the Modified Version.  Only one
+     passage of Front-Cover Text and one of Back-Cover Text may be
+     added by (or through arrangements made by) any one entity.  If the
+     Document already includes a cover text for the same cover,
+     previously added by you or by arrangement made by the same entity
+     you are acting on behalf of, you may not add another; but you may
+     replace the old one, on explicit permission from the previous
+     publisher that added the old one.
+
+     The author(s) and publisher(s) of the Document do not by this
+     License give permission to use their names for publicity for or to
+     assert or imply endorsement of any Modified Version.
+
+  5. COMBINING DOCUMENTS
+
+     You may combine the Document with other documents released under
+     this License, under the terms defined in section 4 above for
+     modified versions, provided that you include in the combination
+     all of the Invariant Sections of all of the original documents,
+     unmodified, and list them all as Invariant Sections of your
+     combined work in its license notice, and that you preserve all
+     their Warranty Disclaimers.
+
+     The combined work need only contain one copy of this License, and
+     multiple identical Invariant Sections may be replaced with a single
+     copy.  If there are multiple Invariant Sections with the same name
+     but different contents, make the title of each such section unique
+     by adding at the end of it, in parentheses, the name of the
+     original author or publisher of that section if known, or else a
+     unique number.  Make the same adjustment to the section titles in
+     the list of Invariant Sections in the license notice of the
+     combined work.
+
+     In the combination, you must combine any sections Entitled
+     "History" in the various original documents, forming one section
+     Entitled "History"; likewise combine any sections Entitled
+     "Acknowledgements", and any sections Entitled "Dedications".  You
+     must delete all sections Entitled "Endorsements."
+
+  6. COLLECTIONS OF DOCUMENTS
+
+     You may make a collection consisting of the Document and other
+     documents released under this License, and replace the individual
+     copies of this License in the various documents with a single copy
+     that is included in the collection, provided that you follow the
+     rules of this License for verbatim copying of each of the
+     documents in all other respects.
+
+     You may extract a single document from such a collection, and
+     distribute it individually under this License, provided you insert
+     a copy of this License into the extracted document, and follow
+     this License in all other respects regarding verbatim copying of
+     that document.
+
+  7. AGGREGATION WITH INDEPENDENT WORKS
+
+     A compilation of the Document or its derivatives with other
+     separate and independent documents or works, in or on a volume of
+     a storage or distribution medium, is called an "aggregate" if the
+     copyright resulting from the compilation is not used to limit the
+     legal rights of the compilation's users beyond what the individual
+     works permit.  When the Document is included an aggregate, this
+     License does not apply to the other works in the aggregate which
+     are not themselves derivative works of the Document.
+
+     If the Cover Text requirement of section 3 is applicable to these
+     copies of the Document, then if the Document is less than one half
+     of the entire aggregate, the Document's Cover Texts may be placed
+     on covers that bracket the Document within the aggregate, or the
+     electronic equivalent of covers if the Document is in electronic
+     form.  Otherwise they must appear on printed covers that bracket
+     the whole aggregate.
+
+  8. TRANSLATION
+
+     Translation is considered a kind of modification, so you may
+     distribute translations of the Document under the terms of section
+     4.  Replacing Invariant Sections with translations requires special
+     permission from their copyright holders, but you may include
+     translations of some or all Invariant Sections in addition to the
+     original versions of these Invariant Sections.  You may include a
+     translation of this License, and all the license notices in the
+     Document, and any Warrany Disclaimers, provided that you also
+     include the original English version of this License and the
+     original versions of those notices and disclaimers.  In case of a
+     disagreement between the translation and the original version of
+     this License or a notice or disclaimer, the original version will
+     prevail.
+
+     If a section in the Document is Entitled "Acknowledgements",
+     "Dedications", or "History", the requirement (section 4) to
+     Preserve its Title (section 1) will typically require changing the
+     actual title.
+
+  9. TERMINATION
+
+     You may not copy, modify, sublicense, or distribute the Document
+     except as expressly provided for under this License.  Any other
+     attempt to copy, modify, sublicense or distribute the Document is
+     void, and will automatically terminate your rights under this
+     License.  However, parties who have received copies, or rights,
+     from you under this License will not have their licenses
+     terminated so long as such parties remain in full compliance.
+
+ 10. FUTURE REVISIONS OF THIS LICENSE
+
+     The Free Software Foundation may publish new, revised versions of
+     the GNU Free Documentation License from time to time.  Such new
+     versions will be similar in spirit to the present version, but may
+     differ in detail to address new problems or concerns.  See
+     `http://www.gnu.org/copyleft/'.
+
+     Each version of the License is given a distinguishing version
+     number.  If the Document specifies that a particular numbered
+     version of this License "or any later version" applies to it, you
+     have the option of following the terms and conditions either of
+     that specified version or of any later version that has been
+     published (not as a draft) by the Free Software Foundation.  If
+     the Document does not specify a version number of this License,
+     you may choose any version ever published (not as a draft) by the
+     Free Software Foundation.
+
+A.0.1 ADDENDUM: How to use this License for your documents
+----------------------------------------------------------
+
+To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and license
+notices just after the title page:
+
+       Copyright (C)  YEAR  YOUR NAME.
+       Permission is granted to copy, distribute and/or modify this document
+       under the terms of the GNU Free Documentation License, Version 1.2
+       or any later version published by the Free Software Foundation;
+       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+       A copy of the license is included in the section entitled ``GNU
+       Free Documentation License''.
+
+   If you have Invariant Sections, Front-Cover Texts and Back-Cover
+Texts, replace the "with...Texts." line with this:
+
+         with the Invariant Sections being LIST THEIR TITLES, with
+         the Front-Cover Texts being LIST, and with the Back-Cover Texts
+         being LIST.
+
+   If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
+
+   If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License, to
+permit their use in free software.
+
+ [index ]
+* Menu:
+
+* Darwin:                                Requirements.          (line 6)
+* FDL, GNU Free Documentation License:   GNU Free Documentation License.
+                                                                (line 6)
+* installation:                          Installation of GNUpod.
+                                                                (line 6)
+* requirements:                          Requirements.          (line 6)
+* Solaris:                               Requirements.          (line 6)
+
+
+
+Tag Table:
+Node: Top882
+Node: Requirements1471
+Node: Installing GNUpod1994
+Node: Installation of GNUpod2421
+Node: Using FireWire with GNU/Linux3540
+Node: Convert your Mac iPod7080
+Node: Firmware update11734
+Node: Using GNUpod17889
+Node: Preparation18999
+Node: Configuration19732
+Node: Add files20188
+Node: Search files21670
+Node: Remove files22152
+Node: Edit tags22453
+Node: Creating playlists22997
+Node: Dealing with podcasts25486
+Node: Adding cover artwork26392
+Node: Unplug the iPod27734
+Node: Recovering files28647
+Node: Coexistence29544
+Node: Late 2007 iPods31034
+Node: Problems31823
+Node: GNUtunesDB32206
+Node: Get rid of '-m'33713
+Node: Known bugs and limitations34004
+Node: Reporting Bugs34295
+Node: GNU Free Documentation License34743
+
+End Tag Table

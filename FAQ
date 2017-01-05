@@ -1,0 +1,222 @@
+TOC
+
+
+1 : What is GNUpod?
+2 : Which iPods are supported? Which are not?
+3 : Quick howto
+4 : How about a GUI?
+5 : Does GNUpod support feature $foobar ?
+6 : Can i add File-Format $foobar ?
+7 : How can i add files recursive?
+8 : How to get parseable output from gnupod_search.pl?
+9 : Some Artists/Albums, etc. shows up multiple times
+    on the iPod Browser!
+10 : Why?
+11: Do you have any specs about the iTunesDB format?
+12: How do i report bugs or feature-requests?
+13: How can i contribute?
+
+
+
+1. What is GNUpod?
+------------------
+With GNUpod, you can use your iPod on GNU/Linux and
+many other Operating Systems (with a useable Port
+of Perl5 + FireWire / USB2 Support)
+
+GNUpod is a collection of Perlscripts. They
+handle the iPod internals for you ;)
+[Apples Binary Filetypes..]
+
+
+2. Which iPods are supported? Which are not?
+----------------------------
+GNUpod is known to work with
+
+- Firmware 1.x (1&2nd gen. iPods)
+- Firmware 2.x (3. gen iPod)
+- Firmware 3.x (iPod Mini)
+- Firmware 5.x? (Photo iPod - only basic support, no pictures!)
+- Firmware ??? (iPod Shuffle, since GNUpod 0.98)
+
+GNUpod does not yet work with
+
+- iPod shuffle 3rd generation (the talking shuffle)
+  Apple changed the iTunesSD format for that device.
+
+- iPhone/iPod touch from 2.0 firmware
+- iPod touch 2nd generation
+- iPhone 3G
+see http://www.bluwiki.com/go/Ipodhash
+
+
+3. Quick howto
+--------------
+A quick Howto for a fresh (virgin) iPod
+
+ 0 Install gnupod:
+   ./configure && make install
+ 
+ 1 Mount the iPod (eg. /mnt/ipod)
+ 2 run gnupod_INIT.pl -m /mnt/ipod
+ 3 add songs using 'gnupod_addsong.pl -m /mnt/ipod *blabla.mp3
+ 4 build the iTunesDB using mktunes: 'mktunes.pl -m /mnt/ipod'
+ 5 umount the iPod and enjoy!
+
+ If you add more songs, repeat step 1-5 (without step 2!) :
+ 1 Mount the iPod
+ 2 use gnupod_addsong.pl
+ 3 build the database with mktunes.pl
+ 4 umount
+
+Please read the README file and the info page
+(info gnupod) or have a look at doc/gnupod.html
+
+
+4. How about a GUI?
+-------------------
+I don't like GUIs, thats why GNUpod has only
+a CLI interface.
+
+I work much faster with CLI tools, but feel free to create
+a GUI for GNUpod.
+
+But there are some GNUpod 'forks'
+
+- GTKpod     http://gtkpod.sf.net ('Inspired' by mktunes.pl / iTunesDB.pm)
+- Rhythmbox  http://www.rhythmbox.org/ (Uses GTKpod code)
+
+(<ironic>..and some companies created commercial iPod apps.. and i'm sure
+ they didn't look at my source ;-) </ironic> .. sad)
+
+
+5. Does GNUpod support feature $foobar?
+---------------------------------------
+
+Firmware 1.x
+ - IMHO all features are supported
+   (= Filebrowser + Playlists)
+   ..GNUpod doesn't 'support' the
+   Contacts feature, etc. (Normal .vcf files..)
+
+Firmware 2.x
+ - On-The-Go Playlists are supported
+   -> GNUpod converts the On-The-Go Playlist
+      into On-The-Go $NUMBER (Like iTunes does...)
+ - Rating is supported
+ - Basic Smart-Playlist support is implemented
+   -> See README.smartplaylists
+   
+
+6. Can i add File-Format $foobar ?
+----------------------------------
+
+The iPod supports 3 Filetypes:
+
+ - MP3
+ - Apple AAC/ALAC files (.m4a)
+ - PCM (.wav)
+
+gnupod_addsong.pl can read this 3 formats.
+
+GNUpod does (currently) *NOT* support:
+
+ - Audible.com files (DRM)
+ - Apple MusicStore files (.m4p - DRM AAC) but it does support .m4a
+
+GnuPod >= 0.96 can convert FLAC and OGG files 'on the fly'.
+You'll have to call gnupod_addsong.pl with the
+--decode switch. see 'man gnupod_addsong.pl' for more details
+(Or read the complete docs: 'info gnupod')
+
+DRM-Support isn't planned.
+
+But gnupod works pretty well with M4A files from allofmp3.com
+
+
+7. How can i add files recursive?
+---------------------------------
+
+gnupod_addsong.pl can read from stdin :)
+
+$ find blabla/ | gnupod_addsong.pl -
+
+(note the '-')
+
+
+8. How to get parseable output from gnupod_search.pl
+----------------------------------------------------
+
+gnupod_addsong.pl knows the '--view' switch.
+
+Example: 
+gnupod_search.pl --view=i -l "Cure" 2>/dev/null | tail +4
+
+(Hmm.. output breaks if On-The-Go data get's synced..)
+FIXME.. maybe we should have an --out option?
+
+
+9. Some Artists/Albums, etc. shows up multiple times..
+------------------------------------------------------
+
+Maybe you got some SPACES in the Artist/Album Name.
+
+'Placebo' isn't the same as 'Placebo  '
+
+To fix it:
+- Open the GNUtunesDB.xml (/mnt/ipod/iPod_Control/.gnupod/)
+- Search the faulty entries, fix them and save
+- Run mktunes.pl to update the iPod.
+
+
+10. Why?
+-------
+
+I wanted an iPod and after buying one, i realized that
+nobody else created an application to support it on GNU/Linux, so
+i did it myself :)
+(Ok, tex9 created a commercial tool, but for x86 only...
+ Such things don't work on ppc-linux ;) GNUpod does)
+
+..And i had enough free time to do it :)
+
+
+11. Do you have any specs about the iTunesDB format?
+----------------------------------------------------
+
+I didn't create a 'whitepaper' or something like this.
+
+The source is the documentation ;)
+But the iTunesDB-format isn't so complicated if you know how to
+write the specific parts and how you'll have to assemble
+them.
+Just have a look at iTunesDB.pm and tunes2pod.pl+mktunes.pl
+
+..or feel free to ask me questions about it:
+<pab at blinkenlights.ch>
+
+Update: Some folks created this superb page:
+ http://www.ipodlinux.org/ITunesDB
+ 
+
+12. How do i report bugs or feature-requests?
+---------------------------------------------
+
+Send a mail to <bug-gnupod at nongnu.org>
+..or <pab at blinkenlights.ch>
+
+
+
+13. How can i contribute?
+-------------------------
+
+Use gnupod and:
+ * Report bugs
+ * Report weird things
+ * Send me patches (better ;) )
+ * Write better documentation
+ * Buy me an iPod-Photo ;)
+ * Donate via Paypal to paypal@blinkenlights.ch ;)
+
+
+*END*

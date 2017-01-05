@@ -1,0 +1,99 @@
+About SmartPlaylist-Support
+===========================
+
+GNUpod can read and write SmartPlaylists.
+Please note that this feature isn't supported
+for iPods running Firmware 1.x
+(Because GNUpod can only do 'liveupdates' at the moment..)
+
+Use the <regex.. stuff if you own a 1.x iPod.
+
+Smartplaylists are powerful but creating them is somewhat ugly.
+
+An example for a SmartPlaylist:
+
+   <smartplaylist checkrule="both" limititem="song" limitsort="random" limitval="55" liveupdate="1" name="Example SPL1" >
+     <spl action="gt" field="bitrate" string="189" />
+   </smartplaylist>
+
+This Playlist includes 55 songs (limitval/limititem) sort by random (limitsort)
+with a Bitrate > 189 (<spl field)
+
+Please note that you have to set liveupdate="1" or the Playlist will be empty :)
+[Because GNUpod can only do liveupdates atm..]
+
+
+It's a bit complicated, maybe you should have a look at
+http://blinkenlights.ch/gnupod/mkspl.html
+ [or doc/mkspl.html]
+You can use Mozilla (needs JS & DOM) to create
+SmartPlaylists via Klickibunti interface ;)
+
+
+
+##### SMARTPLAYLIST
+CHECKRULE:
+ limit (Only match <smartplaylist ... stuff, don't watch <spl.. entries)
+ spl   (Only match <spl entries, don't limit or sort)
+ both  (Match both items)
+ 
+LIMITITEM:
+ minute
+ megabyte
+ song
+ hour
+ gigabyte
+ 
+LIMITSORT:
+ random
+ title
+ album
+ artist
+ genre
+ addtime_high
+ addtime_low
+ playcount_high
+ playcount_low
+ lastplay_high
+ lastplay_low
+ rating_high
+ rating_low
+
+##### SPL
+FIELD for use with action IS/CONTAINS/STARTWITH/ENDWITH (use NOT_ for 'not' -> 'NOT_IS'   [STRINGS]
+ TITLE
+ ALBUM
+ ARTIST
+ GENRE
+ FDESC
+ COMMENT
+ COMPOSER
+ GROUP
+
+FIELD for use with action eq/gt/lt/range (Use ! for 'not' -> '!eq') [NUM]
+ bitrate
+ srate
+ year
+ changetime (MAC TIMESTAMP!)
+ tracknum
+ size
+ time
+ addtime (MAC TIMESTAMP!)
+ playcount
+ lastplay (MAC TIMESTAMP!)
+ cdnum
+ rating (20 = 1 star / 60 = 3 starts ...-> STARTS*20 = Value)
+ compilation (0 or 1)
+ bpm
+
+There is also a 'within' field for use with
+ changetime
+ addtime
+ lastplay
+ 
+ The 'value' of a within field needs a suffix: _day / _week / _month
+ So you could write 
+   <spl action="within" field="lastplay" value="2_month"/> 
+ to add all songs played within the last 2 months.
+ You could also use a ! to invert the result: (=NOT within)
+   <spl action="!within" field="lastplay" value="2_month"/> 

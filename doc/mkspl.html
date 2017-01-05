@@ -1,0 +1,292 @@
+<html>
+ <head>
+  <title>SmartPlaylist generator</title>
+  
+  <script language="JavaScript">
+  
+  /* Define FORMs */
+   var counter = 0;
+
+   
+   function mkspl() {
+    var liveupdate = 1;
+    
+    var limitval = document.spling.limitval.value;
+    var limititem =document.spling.limititem.value;
+    var limitsort =document.spling.limitsort.value;
+    var name = document.spling.name.value;
+    
+    var anymatch = 0;
+    var checkrule = 'both';
+    
+    if(document.spling.anymatch.checked) {
+     anymatch=1;
+    }   
+    
+    if(document.spling.spl_match.checked == false) {
+     document.spling.do_limit.checked = true; /*Force user */
+     checkrule = 'limit';
+    }
+    else if(document.spling.do_limit.checked == false) {
+     checkrule = 'spl';
+    }
+    
+    
+    var splLine = "<smartplaylist name=\""+name+"\" checkrule=\""+checkrule+"\" liveupdate=\""+liveupdate+"\" limititem=\""+
+                  limititem+"\" limitval=\""+limitval+"\" limitsort=\""+limitsort+"\" matchany=\""+anymatch+"\" >\n";
+   
+    var spl_field;
+    var spl_action;
+    var spl_value;
+    var evalme;
+    for(var i=1;i<=counter;i++) {
+     var action_field = getField(getChangedTo(i));
+     var value_field  = getvalueField(getChangedTo(i));
+     evalme =  "spl_field = document.spling.field_"+i+".value;";
+     evalme += "spl_action = document.spling."+action_field+"_"+i+".value;";
+     evalme += "spl_value  = document.spling."+value_field+"_"+i+".value;";           
+     eval(evalme);
+     spl_field = spl_field.substr(1);
+     splLine += "  <spl action=\""+spl_action+"\" field=\""+spl_field+"\" string=\""+spl_value+"\" />\n";
+    }
+     splLine += "</smartplaylist>";
+     document.spling.FINISH.value = splLine;
+   }
+  
+
+  /* Handle a change of the FIELD item 
+    - Set the current ACTION
+    - Set the current value vield */
+  function xChange(init_fID, xn) {
+  
+   var fID 
+   
+   if(xn) { /* We got a this. */
+    fID = xn.name.substr((xn.name.length)-1,1);
+   }
+   else { /* No this.. primitive forced */
+    fID = init_fID;
+   }
+
+   /* Hide forms */
+   eval("document.spling.INTaction_"+fID+".style.display = 'none'");
+   eval("document.spling.STRaction_"+fID+".style.display = 'none'");
+   eval("document.spling.BOOLaction_"+fID+".style.display = 'none'");
+   eval("document.spling.RATINGaction_"+fID+".style.display = 'none'");
+
+   eval("document.spling.RATINGvalue_"+fID+".style.display = 'none'");
+   eval("document.spling.value_"+fID+".style.display = 'none'");
+
+   var changedto = getChangedTo(fID);
+   var a_field   = getField(changedto);
+   var v_field   = getvalueField(changedto);
+
+   if (a_field) {
+     eval("document.spling."+a_field+"_"+fID+".style.display = 'inline'");
+   }
+   
+     eval("document.spling."+v_field+"_"+fID+".style.display = 'inline'");
+   
+   if(changedto == 'B') {
+    eval("document.spling.value_"+fID+".style.display = 'none'");   
+   }
+
+
+
+  }
+  
+  function getChangedTo(ID) {
+   var returnme = -1;
+   eval("returnme = document.spling.field_"+ID+".value.substr(0,1)");
+   return returnme;
+  }
+  
+  
+  function getField(ChangedTo) {
+   if(ChangedTo == "S") {
+    return "STRaction";
+   }
+   else if(ChangedTo == "I") {
+    return "INTaction";
+   }
+   else if(ChangedTo == "B") {
+    return "BOOLaction";
+   }   
+   else if(ChangedTo == "R") {
+    return "RATINGaction";
+   }
+   else {
+    alert("Sorry, i can't handle this type ATM.. somebody would have to write code ;)\nkey: "+ChangedTo);
+    return 0;
+   }
+  }
+  
+  function getvalueField(ChangedTo) {
+   if(ChangedTo == "R") {
+    return "RATINGvalue";
+   }
+   return "value";
+  }  
+
+  
+  
+  
+
+/* Add a new mode.. 'Stolen' from www.quirksmode.org */
+
+function moreFields()
+{
+  counter++; /* Inc counter */
+  var newFields = document.getElementById('splmatcher').cloneNode(true);
+  newFields.id = '';
+  newFields.style.display = 'block';
+  var newField = newFields.childNodes;
+    /* Change the name */
+  for (var i=0;i<newField.length;i++) {
+    var theName = newField[i].name
+    if (theName) {
+      newField[i].name = theName + counter;
+    }
+  }
+    var insertHere = document.getElementById('writeroot');
+    insertHere.parentNode.insertBefore(newFields,insertHere);
+    xChange(counter); /* Force Change Event */
+} 
+  
+  </script>
+  
+ </head>
+ 
+ <body onLoad="javascript:moreFields()" bgcolor="#DEDBD6">
+ 
+ <form name="spling">
+ <table border=1>
+ <tr><td>
+  <input type="text" name="name" value="SmartPlaylist Name"><br>
+ </td></tr>
+ 
+ <tr><td>
+ 
+  <input type="checkbox" name="spl_match" value=1> Match &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="checkbox" name="anymatch" value=1> any
+ 
+  <div id="splmatcher" style="display: none">
+<select name="field_" onChange="javascript:xChange(0,this)">
+   <option value="Stitle">Title</option>
+   <option value="Salbum">Album</option>
+   <option value="Sartist">Artist</option>
+   <option value="Sgenre">Genre</option>
+   <option value="Sfdesc">Description</option>
+   <option value="Scomment">Comment</option>
+   <option value="Scomposer">Composer</option>
+   <option value="Sgroup">Group</option>
+   <option value="Ibitrate">Bitrate</option>
+   <option value="Israte">Sampling Rate</option>
+   <option value="Iyear">Year</option>
+   <option value="Dchangetime">Changetime</option>
+   <option value="Itracknum">Tracknumber</option>
+   <option value="Isize">Size</option>
+   <option value="Itime">Playtime</option>
+   <option value="Daddtime">Addtime</option>
+   <option value="Iplaycount">Playcount</option>
+   <option value="Dlastplay">Last played</option>
+   <option value="Icdnum">CD Number</option>
+   <option value="Rrating">Rating</option>
+   <option value="Bcompilation">Compilation</option>
+   <option value="Ibpm">BPM</option>
+  </select>  
+   
+  <select name="INTaction_">
+   <option value="eq">==</option>
+   <option value="!eq">!=</option>
+   <option value="gt">&gt;</option>
+   <option value="lt">&lt;</option>
+   <option value="range">Range (use from:to)</option>
+   <option value="!range">not Range (use from:to)</option>
+  </select> 
+  
+  <select name="STRaction_">
+   <option value="IS">is</option>
+   <option value="NOT_IS">is not</option>
+   <option value="CONTAINS">contains</option>
+   <option value="NOT_CONTAINS">doesn't contain</option>
+   <option value="STARTWITH">starts with</option>
+   <option value="NOT_STARTWITH">doesn't start with</option>
+   <option value="ENDWITH">ends with</option>
+   <option value="NOT_ENDWITH">doesn't end with</option>
+  </select>
+
+  <select name="BOOLaction_">
+   <option value="eq">set</option>
+   <option value="!eq">not set</option>
+  </select>
+
+  <select name="RATINGaction_">
+   <option value="eq">is</option>
+   <option value="!eq">is not</option>
+   <option value="gt">more than</option>
+   <option value="lt">less than</option>
+   <option value="range">Range (use from:to) FIXME</option>
+   <option value="!range">not Range (use from:to) FIXME</option>
+  </select> 
+
+  <select name="RATINGvalue_">
+   <option value="0">no rating</option>
+   <option value="20">* star</option>
+   <option value="40">** stars</option>
+   <option value="60">*** stars</option>
+   <option value="80">**** stars</option>
+   <option value="100">***** stars</option>
+  </select>
+
+  <input name="value_">
+
+  
+  </div>
+  
+
+<span id="writeroot"></span>
+
+  <a href="#" onClick="javascript:moreFields()">ADD</a>
+  
+  
+ </td></tr>
+ 
+ <tr><td>
+ <input type="checkbox" name="do_limit"> Limit to <input type=text name=limitval> 
+ 
+ <select name="limititem">
+  <option value="minute">Minutes</option>
+  <option value="hour">Hours</option>
+  <option value="song">Songs</option>
+  <option value="megabyte">Mb.</option>
+  <option value="gigabyte">Gb.</option>
+ </select>
+ 
+ sort by 
+ <select name="limitsort">
+  <option value="random">Random</option>
+  <option value="title">Title</option>
+  <option value="album">Album</option>
+  <option value="artist">Artist</option>
+  <option value="genre">Genre</option>
+  <option value="addtime_high">Added recent</option>
+  <option value="addtime_low">Added long ago</option>
+  <option value="playcount_high">Played often</option>
+  <option value="playcount_low">Seldom played</option>
+  <option value="lastplay_high">Played recent</option>
+  <option value="lastplay_low">Played long ago</option>
+  <option value="rating_high">Highest rating</option>
+  <option value="rating_low">Lowest rating</option>
+ </select>
+ </td></tr>
+ </table>
+
+ <a href="#" onClick="mkspl()">Create SPL</a>
+ <br>
+
+ 
+ <textarea rows=12 cols=120 name=FINISH></textarea>
+  </form> 
+ </body>
+</html>

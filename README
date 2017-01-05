@@ -1,0 +1,62 @@
+What is GNUpod?
+---------------
+With GNUpod, you can use your iPod on GNU/Linux and
+many other Operating Systems (with a useable Port
+of Perl5 + FireWire / USB2 Support)
+
+
+Installing GNUpod
+-----------------
+Running
+ # ./configure
+ # make install
+should be enough.
+
+
+Using GNUpod
+------------
+After installing GNUpod, you can use
+# info gnupod
+
+to view GNUpod's info page.
+
+An HTML Version of the info-page is also
+included in this package (see doc/)
+
+You should also read the FAQ
+
+
+GNUpod commands (cheatsheet)
+----------------------------
+
+gnupod_INIT.pl      INIT a new iPod (create empty Database + Directories)
+gnupod_addsong.pl   Add files
+gnupod_check.pl     Check for 'zombie' files
+gnupod_otgsync.pl   Handles On-The-Go Sync (not for humans)
+gnupod_search.pl    Search ;)
+mktunes.pl          Convert the GNUtunesDB.xml to a iTunesDB
+tunes2pod.pl        Convert the iTunesDB into a GNUtunesDB.xml
+
+You'll have to use mktunes.pl if you added/deleted/changed something
+on the iPod.
+
+
+Supported iPods
+---------------
+
+* All iPods up to late 2007 (Touch, Classic and Nano) are supported,
+  GNUpod supports:
+
+ - ALAC, MP4 (AAC), MP3 and PCM
+ - MP4  Videos
+ - On-The-Fly re-encoding from flac, ogg, avi, etc..
+ - Normal Playlists
+ - On-The-Go Playlists
+ - GNUpod extended playlists (<regex />)
+ - iTunes Smart-Playlists (not supported by all models)
+ - Artwork Support for Video and Nano iPods
+
+ See: http://support.apple.com/kb/HT1353 (Identifying iPod models)
+ and  http://en.wikipedia.org/wiki/IPod
+
+*Note*  - GNUpod does *not* support DRM-Stuff!
